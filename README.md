@@ -29,14 +29,6 @@ Each directory within this repository contains:
 - A `README.md` detailing how to set up and run the application.
 - Benchmarking scripts and results for performance comparison.
 
-## How to Contribute
-
-If you would like to contribute to this project by adding a new framework or optimizing an existing one, please feel free to fork the repository, make your changes, and submit a pull request. Contributions should include:
-
-- A clear description of the framework or architecture being added.
-- Performance benchmarking results compared to the existing implementations.
-- Any relevant documentation or setup instructions.
-
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
