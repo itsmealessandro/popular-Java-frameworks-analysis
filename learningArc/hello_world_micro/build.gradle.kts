@@ -19,6 +19,13 @@ dependencies {
     compileOnly("io.micronaut:micronaut-http-client")
     runtimeOnly("ch.qos.logback:logback-classic")
     testImplementation("io.micronaut:micronaut-http-client")
+
+    // Aggiungi Thymeleaf
+    implementation("org.thymeleaf:thymeleaf:3.1.1.RELEASE")
+    implementation("org.thymeleaf:thymeleaf-spring5:3.1.1.RELEASE")
+
+    // Template engine per Thymeleaf (se usi funzionalità aggiuntive come supporto per date e tempi)
+    implementation("org.thymeleaf.extras:thymeleaf-extras-java8time:3.0.4.RELEASE")
 }
 
 
