@@ -1,15 +1,18 @@
-package org;
+package org.controllers;
 
 import org.thymeleaf.context.Context;
 import org.thymeleaf.TemplateEngine;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
-@Path("thymeleaf")
+@ApplicationScoped
 public class ThymeleafController {
   private final TemplateEngine templateEngine;
 
+  @Inject
   public ThymeleafController(TemplateEngine templateEngine) {
     this.templateEngine = templateEngine;
   }
