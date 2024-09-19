@@ -2,6 +2,7 @@ package org.template;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+
 import org.thymeleaf.templatemode.TemplateMode;
 
 public class ThymeleafConfig {
