@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: example.micronaut
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [app-name, data, data-jdbc, flyway, graalvm, http-client-test, java, java-application, jax-rs, jdbc-hikari, junit, logback, maven, maven-enforcer-plugin, micronaut-aot, micronaut-http-validation, mysql, netty-server, properties, readme, serialization-jackson, shade, static-resources, test-resources, validation]
