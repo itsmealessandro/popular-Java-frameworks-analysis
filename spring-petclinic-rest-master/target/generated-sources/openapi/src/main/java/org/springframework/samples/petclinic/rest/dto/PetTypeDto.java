@@ -21,7 +21,7 @@ import jakarta.annotation.Generated;
 
 @Schema(name = "PetType", description = "A pet type.")
 @JsonTypeName("PetType")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-09-30T13:44:58.131514478+02:00[Europe/Rome]", comments = "Generator version: 7.8.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-09-30T16:01:49.067074759+02:00[Europe/Rome]", comments = "Generator version: 7.8.0")
 public class PetTypeDto {
 
   private String name;
