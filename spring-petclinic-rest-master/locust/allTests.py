@@ -107,3 +107,47 @@ class PetClinicUser(HttpUser):
                 }
                 self.client.put(f"{self.base_path}/owners/{owner_id}/pets/{pet_id}", json=updated_pet_data)
 
+
+    @task
+    def user_session_4(self):
+        """Session 3: Get the list of pets and update a random pet"""
+        # Step 1: Get the list of pets
+        response = self.client.get(f"{self.base_path}/pets")
+        if response.status_code == 200 and response.json():
+            pets = response.json()
+            pet = random.choice(pets)  # Scegli un pet casuale
+            pet_id = pet.get("id")
+            owner_id = pet.get("owner", {}).get("id")
+
+            # Step 2: Update pet information
+            if action_prob(80):
+                return
+            time.sleep(2)  # Think Time of the user
+
+            if pet_id and owner_id:
+                updated_pet_data = {
+                    "name": "Buddy",
+                    "birthDate": "2015-05-15",
+                    "type": {
+                        "id": pet.get("type", {}).get("id"),
+                        "name": pet.get("type", {}).get("name")
+                    }
+                }
+                self.client.put(f"{self.base_path}/owners/{owner_id}/pets/{pet_id}", json=updated_pet_data)
+
+
+    @task
+    def user_session_5(self):
+        """Session 3: Get the list of pets and delete a random pet"""
+        # Step 1: Get the list of pets
+        response = self.client.get(f"{self.base_path}/pets")
+        if response.status_code == 200 and response.json():
+            pets = response.json()
+            pet = random.choice(pets)  # Scegli un pet casuale
+            pet_id = pet.get("id")
+
+            # Step 2: Delete pet 
+            time.sleep(2)  # Think Time of the user
+
+            self.client.delete(f"{self.base_path}/pets/{pet_id}")
+
