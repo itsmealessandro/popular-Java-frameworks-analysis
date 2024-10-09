@@ -151,3 +151,15 @@ class PetClinicUser(HttpUser):
 
             self.client.delete(f"{self.base_path}/pets/{pet_id}")
 
+
+
+
+
+
+    """ NOTE: CRUD owner"""
+    """ NOTE: CRUD user"""
+    """ NOTE: CRUD vet"""
+    """ NOTE: CRUD pet"""
+    """ NOTE: CRUD speciality"""
+    """ NOTE: CRUD visit"""
+
