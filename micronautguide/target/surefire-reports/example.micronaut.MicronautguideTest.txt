@@ -1,0 +1,66 @@
+-------------------------------------------------------------------------------
+Test set: example.micronaut.MicronautguideTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 4.168 s <<< FAILURE! -- in example.micronaut.MicronautguideTest
+example.micronaut.MicronautguideTest -- Time elapsed: 4.168 s <<< ERROR!
+io.micronaut.context.exceptions.BeanInstantiationException: 
+Bean definition [javax.sql.DataSource] could not be loaded: Error instantiating bean of type  [javax.sql.DataSource]
+
+Message: Test resources service wasn't able to revolve expression 'datasources.default.password': Cannot start container mysql as Docker doesn't seem to be available
+Path Taken: DatasourceFactory.dataSource(DatasourceConfiguration datasourceConfiguration) --> DatasourceFactory.dataSource([DatasourceConfiguration datasourceConfiguration])
+	at io.micronaut.context.DefaultBeanContext.initializeContext(DefaultBeanContext.java:1996)
+	at io.micronaut.context.DefaultApplicationContext.initializeContext(DefaultApplicationContext.java:307)
+	at io.micronaut.context.DefaultBeanContext.configureAndStartContext(DefaultBeanContext.java:3314)
+	at io.micronaut.context.DefaultBeanContext.start(DefaultBeanContext.java:345)
+	at io.micronaut.context.DefaultApplicationContext.start(DefaultApplicationContext.java:215)
+	at io.micronaut.test.extensions.AbstractMicronautExtension.startApplicationContext(AbstractMicronautExtension.java:507)
+	at io.micronaut.test.extensions.AbstractMicronautExtension.beforeClass(AbstractMicronautExtension.java:346)
+	at io.micronaut.test.extensions.junit5.MicronautJunit5Extension.beforeAll(MicronautJunit5Extension.java:84)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Caused by: io.micronaut.context.exceptions.BeanInstantiationException: Error instantiating bean of type  [javax.sql.DataSource]
+
+Message: Test resources service wasn't able to revolve expression 'datasources.default.password': Cannot start container mysql as Docker doesn't seem to be available
+Path Taken: DatasourceFactory.dataSource(DatasourceConfiguration datasourceConfiguration) --> DatasourceFactory.dataSource([DatasourceConfiguration datasourceConfiguration])
+	at io.micronaut.context.DefaultBeanContext.resolveByBeanFactory(DefaultBeanContext.java:2345)
+	at io.micronaut.context.DefaultBeanContext.doCreateBean(DefaultBeanContext.java:2300)
+	at io.micronaut.context.DefaultBeanContext.doCreateBean(DefaultBeanContext.java:2312)
+	at io.micronaut.context.DefaultBeanContext.createRegistration(DefaultBeanContext.java:3123)
+	at io.micronaut.context.SingletonScope.getOrCreate(SingletonScope.java:80)
+	at io.micronaut.context.DefaultBeanContext.findOrCreateSingletonBeanRegistration(DefaultBeanContext.java:3025)
+	at io.micronaut.context.DefaultBeanContext.resolveBeanRegistration(DefaultBeanContext.java:2986)
+	at io.micronaut.context.DefaultBeanContext.resolveBeanRegistration(DefaultBeanContext.java:2752)
+	at io.micronaut.context.DefaultBeanContext.getBean(DefaultBeanContext.java:1745)
+	at io.micronaut.context.AbstractBeanResolutionContext.getBean(AbstractBeanResolutionContext.java:89)
+	at io.micronaut.context.AbstractInitializableBeanDefinition.resolveBean(AbstractInitializableBeanDefinition.java:2188)
+	at io.micronaut.context.AbstractInitializableBeanDefinition.getBeanForConstructorArgument(AbstractInitializableBeanDefinition.java:1350)
+	at io.micronaut.configuration.jdbc.hikari.$DatasourceFactory$DataSource0$Definition.instantiate(Unknown Source)
+	at io.micronaut.context.BeanDefinitionDelegate.instantiate(BeanDefinitionDelegate.java:170)
+	at io.micronaut.context.DefaultBeanContext.resolveByBeanFactory(DefaultBeanContext.java:2330)
+	at io.micronaut.context.DefaultBeanContext.doCreateBean(DefaultBeanContext.java:2300)
+	at io.micronaut.context.DefaultBeanContext.doCreateBean(DefaultBeanContext.java:2312)
+	at io.micronaut.context.DefaultBeanContext.createRegistration(DefaultBeanContext.java:3123)
+	at io.micronaut.context.SingletonScope.getOrCreate(SingletonScope.java:80)
+	at io.micronaut.context.DefaultBeanContext.findOrCreateSingletonBeanRegistration(DefaultBeanContext.java:3025)
+	at io.micronaut.context.DefaultBeanContext.initializeEagerBean(DefaultBeanContext.java:2689)
+	at io.micronaut.context.DefaultBeanContext.initializeContext(DefaultBeanContext.java:1990)
+	... 8 more
+Caused by: io.micronaut.testresources.client.TestResourcesException: Test resources service wasn't able to revolve expression 'datasources.default.password': Cannot start container mysql as Docker doesn't seem to be available
+	at io.micronaut.testresources.client.TestResourcesClientPropertyExpressionResolver$DelegateResolver.withErrorHandling(TestResourcesClientPropertyExpressionResolver.java:92)
+	at io.micronaut.testresources.client.TestResourcesClientPropertyExpressionResolver$DelegateResolver.callClient(TestResourcesClientPropertyExpressionResolver.java:74)
+	at io.micronaut.testresources.client.TestResourcesClientPropertyExpressionResolver$DelegateResolver.resolve(TestResourcesClientPropertyExpressionResolver.java:61)
+	at io.micronaut.testresources.core.LazyTestResourcesExpressionResolver.resolve(LazyTestResourcesExpressionResolver.java:45)
+	at io.micronaut.context.env.DefaultPropertyPlaceholderResolver.resolveExpression(DefaultPropertyPlaceholderResolver.java:209)
+	at io.micronaut.context.env.DefaultPropertyPlaceholderResolver$PlaceholderSegment.getValue(DefaultPropertyPlaceholderResolver.java:381)
+	at io.micronaut.context.env.DefaultPropertyPlaceholderResolver.resolveRequiredPlaceholdersObject(DefaultPropertyPlaceholderResolver.java:116)
+	at io.micronaut.context.env.PropertySourcePropertyResolver.resolvePlaceHoldersIfNecessary(PropertySourcePropertyResolver.java:791)
+	at io.micronaut.context.env.PropertySourcePropertyResolver.getProperty(PropertySourcePropertyResolver.java:388)
+	at io.micronaut.context.DefaultApplicationContext.getProperty(DefaultApplicationContext.java:247)
+	at io.micronaut.context.AbstractInitializableBeanDefinition.resolvePropertyValue(AbstractInitializableBeanDefinition.java:2130)
+	at io.micronaut.context.AbstractInitializableBeanDefinition.getPropertyValueForSetter(AbstractInitializableBeanDefinition.java:1072)
+	at io.micronaut.configuration.jdbc.hikari.$DatasourceConfiguration$Definition.inject(Unknown Source)
+	at io.micronaut.configuration.jdbc.hikari.$DatasourceConfiguration$Definition.doInstantiate(Unknown Source)
+	at io.micronaut.context.AbstractInitializableBeanDefinition.instantiate(AbstractInitializableBeanDefinition.java:770)
+	at io.micronaut.context.BeanDefinitionDelegate.instantiate(BeanDefinitionDelegate.java:167)
+	at io.micronaut.context.DefaultBeanContext.resolveByBeanFactory(DefaultBeanContext.java:2330)
+	... 29 more
+
