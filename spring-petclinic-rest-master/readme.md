@@ -1,3 +1,9 @@
+# My Comments
+
+## Running
+run the app choosing this command: ./mvnw spring-boot:run -Dspring-boot.run.arguments="--db=<x>" where "<x>" is a custom value that decides what database you want to use
+
+
 # REST version of Spring PetClinic Sample Application (spring-framework-petclinic extend ) 
 
 [![Java Build Status](https://github.com/spring-petclinic/spring-petclinic-rest/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-petclinic/spring-petclinic-rest/actions/workflows/maven-build.yml)
