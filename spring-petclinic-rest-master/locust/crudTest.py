@@ -9,31 +9,28 @@ class PetClinicUser(HttpUser):
     def pettypes_crud(self):
         """ NOTE: CRUD pettypes"""
         # GET ALL
-        response = self.client.get(f"{self.base_path}/pettypes") 
+        response = self.client.get(f"{self.base_path}/pettypes")
 
-        #GET
         pettypes = response.json()
         pettype = random.choice(pettypes)
-        pettype_id = pettype.get("id") 
+        pettype_id = pettype.get("id")
 
+        # GET
         self.client.get(f"{self.base_path}/pettypes/{pettype_id}")
 
-        #PUT
+        # PUT
         updated_pettypes_data = {
-            "name": f"{pettype.get('name')}_updated",
-            "id": f"{pettype_id}"
+            "name": f"{pettype.get('name')}_updated"
         }
-        self.client.put(f"{self.base_path}/pettypes",updated_pettypes_data)
-        #PUT CHECK
-        self.client.get(f"{self.base_path}/pettypes/{pettype_id}")
+        self.client.put(f"{self.base_path}/pettypes/{pettype_id}", json=updated_pettypes_data)
 
-        #POST
+        # POST
         inserted_pettypes_data = {
-            "name:new_pettype"
+            "name": "new_pettype"
         }
-        self.client.post(f"{self.base_path}/pettypes",inserted_pettypes_data)
+        self.client.post(f"{self.base_path}/pettypes", json=inserted_pettypes_data)
 
-        #DELETE
+        # DELETE
         self.client.delete(f"{self.base_path}/pettypes/{pettype_id}")
 
 
@@ -45,38 +42,11 @@ class PetClinicUser(HttpUser):
         response = self.client.get(f"{self.base_path}/owners")
 
         # GET
-        if response.status_code != 200 or not response.json():
-            return  # should be an error
-
         owners = response.json()
         owner = random.choice(owners)
         owner_id = owner.get("id")
 
         self.client.get(f"{self.base_path}/owners/{owner_id}")
-
-        # PUT
-        updated_owner_data = {
-            "firstName": f"{owner['firstName']}_updated",
-            "lastName": owner["lastName"],
-            "address": owner["address"],
-            "city": owner["city"],
-            "telephone": owner["telephone"],
-            "id": owner_id
-        }
-        self.client.put(f"{self.base_path}/owners", json=updated_owner_data)
-
-        # POST
-        new_owner_data = {
-            "firstName": "New",
-            "lastName": "Owner",
-            "address": "123 New St.",
-            "city": "New City",
-            "telephone": "1234567890"
-        }
-        self.client.post(f"{self.base_path}/owners", json=new_owner_data)
-
-        # DELETE
-        self.client.delete(f"{self.base_path}/owners/{owner_id}")
 
 
     @task
@@ -85,30 +55,26 @@ class PetClinicUser(HttpUser):
         # GET ALL
         response = self.client.get(f"{self.base_path}/pets")
 
-        # GET
-        if response.status_code != 200 or not response.json():
-            return  # should be an error
-
         pets = response.json()
         pet = random.choice(pets)
         pet_id = pet.get("id")
 
+        # GET
         self.client.get(f"{self.base_path}/pets/{pet_id}")
 
         # PUT
         updated_pet_data = {
             "name": f"{pet['name']}_updated",
             "birthDate": pet["birthDate"],
-            "type": pet["type"],
-            "id": pet_id
+            "type": pet["type"]
         }
-        self.client.put(f"{self.base_path}/pets", json=updated_pet_data)
+        self.client.put(f"{self.base_path}/pets/{pet_id}", json=updated_pet_data)
 
         # POST
         new_pet_data = {
             "name": "Buddy",
             "birthDate": "2022-01-01",
-            "type": {"id": 1, "name": "Dog"}  # Assuming you have a pet type with id 1
+            "type": {"id": 1, "name": "Dog"}  # Assumendo che il tipo di animale con ID 1 esista
         }
         self.client.post(f"{self.base_path}/pets", json=new_pet_data)
 
@@ -122,30 +88,26 @@ class PetClinicUser(HttpUser):
         # GET ALL
         response = self.client.get(f"{self.base_path}/vets")
 
-        # GET
-        if response.status_code != 200 or not response.json():
-            return  # should be an error
-
         vets = response.json()
         vet = random.choice(vets)
         vet_id = vet.get("id")
 
+        # GET
         self.client.get(f"{self.base_path}/vets/{vet_id}")
 
         # PUT
         updated_vet_data = {
             "firstName": f"{vet['firstName']}_updated",
             "lastName": vet["lastName"],
-            "specialties": vet["specialties"],
-            "id": vet_id
+            "specialties": vet["specialties"]
         }
-        self.client.put(f"{self.base_path}/vets", json=updated_vet_data)
+        self.client.put(f"{self.base_path}/vets/{vet_id}", json=updated_vet_data)
 
         # POST
         new_vet_data = {
             "firstName": "Sara",
             "lastName": "Smith",
-            "specialties": [{"id": 1, "name": "Surgery"}]  # Assuming specialty with id 1
+            "specialties": [{"id": 1, "name": "Surgery"}]  # Assumendo che la specializzazione con ID 1 esista
         }
         self.client.post(f"{self.base_path}/vets", json=new_vet_data)
 
@@ -160,22 +122,18 @@ class PetClinicUser(HttpUser):
         # GET ALL
         response = self.client.get(f"{self.base_path}/specialties")
 
-        # GET
-        if response.status_code != 200 or not response.json():
-            return  # should be an error
-
         specialties = response.json()
         specialty = random.choice(specialties)
         specialty_id = specialty.get("id")
 
+        # GET
         self.client.get(f"{self.base_path}/specialties/{specialty_id}")
 
         # PUT
         updated_specialty_data = {
-            "name": f"{specialty['name']}_updated",
-            "id": specialty_id
+            "name": f"{specialty['name']}_updated"
         }
-        self.client.put(f"{self.base_path}/specialties", json=updated_specialty_data)
+        self.client.put(f"{self.base_path}/specialties/{specialty_id}", json=updated_specialty_data)
 
         # POST
         new_specialty_data = {
@@ -193,29 +151,25 @@ class PetClinicUser(HttpUser):
         # GET ALL
         response = self.client.get(f"{self.base_path}/visits")
 
-        # GET
-        if response.status_code != 200 or not response.json():
-            return  # should be an error
-
         visits = response.json()
         visit = random.choice(visits)
         visit_id = visit.get("id")
 
+        # GET
         self.client.get(f"{self.base_path}/visits/{visit_id}")
 
         # PUT
         updated_visit_data = {
             "date": "2024-10-01",
-            "description": "Updated visit description",
-            "id": visit_id
+            "description": "Updated visit description"
         }
-        self.client.put(f"{self.base_path}/visits", json=updated_visit_data)
+        self.client.put(f"{self.base_path}/visits/{visit_id}", json=updated_visit_data)
 
         # POST
         new_visit_data = {
             "date": "2024-10-10",
             "description": "Annual check-up",
-            "petId": 1  # Assuming pet with id 1 exists
+            "petId": 1  # Assumendo che l'animale con ID 1 esista
         }
         self.client.post(f"{self.base_path}/visits", json=new_visit_data)
 
