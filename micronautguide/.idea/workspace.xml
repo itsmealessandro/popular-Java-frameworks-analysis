@@ -32,12 +32,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_directory_selection&quot;: &quot;/home/alessandro/projects/web-app-frameworks-comparison/micronautguide/src/test/java&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_directory_selection": "/home/alessandro/projects/web-app-frameworks-comparison/micronautguide/src/test/java",
+    "last_opened_file_path": "/home/alessandro/projects/se4iot"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="micronautguide [test]" type="MavenRunConfiguration" factoryName="Maven" nameIsGenerated="true">
       <MavenSettings>
