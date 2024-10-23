@@ -1,3 +1,90 @@
+DROP TABLE vet_specialties IF EXISTS;
+DROP TABLE vets IF EXISTS;
+DROP TABLE specialties IF EXISTS;
+DROP TABLE visits IF EXISTS;
+DROP TABLE pets IF EXISTS;
+DROP TABLE types IF EXISTS;
+DROP TABLE owners IF EXISTS;
+DROP TABLE roles IF EXISTS;
+DROP TABLE users IF EXISTS;
+
+CREATE TABLE vets (
+  id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(30),
+  last_name  VARCHAR(30)
+);
+CREATE INDEX vets_last_name ON vets (last_name);
+
+CREATE TABLE specialties (
+  id   BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(80)
+);
+CREATE INDEX specialties_name ON specialties (name);
+
+CREATE TABLE vet_specialties (
+  vet_id       INTEGER NOT NULL,
+  specialty_id INTEGER NOT NULL
+);
+ALTER TABLE vet_specialties ADD CONSTRAINT fk_vet_specialties_vets FOREIGN KEY (vet_id) REFERENCES vets (id);
+ALTER TABLE vet_specialties ADD CONSTRAINT fk_vet_specialties_specialties FOREIGN KEY (specialty_id) REFERENCES specialties (id);
+
+CREATE TABLE types (
+  id   BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(80)
+);
+CREATE INDEX types_name ON types (name);
+
+CREATE TABLE owners (
+  id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(30),
+  last_name  VARCHAR(30),
+  address    VARCHAR(255),
+  city       VARCHAR(80),
+  telephone  VARCHAR(20)
+);
+CREATE INDEX owners_last_name ON owners (last_name);
+
+CREATE TABLE pets (
+  id        BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name      VARCHAR(30),
+  birth_date DATE,
+  type_id   INTEGER,
+  owner_id  INTEGER
+);
+ALTER TABLE pets ADD CONSTRAINT fk_pets_owners FOREIGN KEY (owner_id) REFERENCES owners (id);
+ALTER TABLE pets ADD CONSTRAINT fk_pets_types FOREIGN KEY (type_id) REFERENCES types (id);
+
+CREATE TABLE visits (
+  id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+  pet_id     INTEGER NOT NULL,
+  visit_date DATE NOT NULL,
+  description VARCHAR(255)
+);
+ALTER TABLE visits ADD CONSTRAINT fk_visits_pets FOREIGN KEY (pet_id) REFERENCES pets (id);
+
+CREATE TABLE roles (
+  id   BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255)
+);
+
+CREATE TABLE users (
+  username  VARCHAR(255) PRIMARY KEY,
+  password  VARCHAR(255),
+  enabled   BOOLEAN
+);
+CREATE INDEX users_enabled ON users (enabled);
+
+CREATE TABLE user_roles (
+  user_id  VARCHAR(255),
+  role_id  INTEGER
+);
+ALTER TABLE user_roles ADD CONSTRAINT fk_user_roles_users FOREIGN KEY (user_id) REFERENCES users (username);
+ALTER TABLE user_roles ADD CONSTRAINT fk_user_roles_roles FOREIGN KEY (role_id) REFERENCES roles (id);
+
+
+
+
+
 INSERT INTO types VALUES (1, 'cat');
 INSERT INTO types VALUES (2, 'dog');
 INSERT INTO types VALUES (3, 'lizard');
@@ -52,9 +139,9 @@ INSERT INTO pets VALUES (13, 'Sly', '2002-06-08', 1, 10);
 
 INSERT INTO users(username,password,enabled) VALUES ('admin','{noop}admin', true);
 
-INSERT INTO roles (username, role) VALUES ('admin', 'ROLE_OWNER_ADMIN');
-INSERT INTO roles (username, role) VALUES ('admin', 'ROLE_VET_ADMIN');
-INSERT INTO roles (username, role) VALUES ('admin', 'ROLE_ADMIN');
+INSERT INTO roles (name) VALUES ('ROLE_OWNER_ADMIN');
+INSERT INTO roles (name) VALUES ('ROLE_VET_ADMIN');
+INSERT INTO roles (name) VALUES ('ROLE_ADMIN');
 
 
 
