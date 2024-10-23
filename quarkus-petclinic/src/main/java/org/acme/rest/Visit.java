@@ -7,18 +7,18 @@ import java.time.LocalDate;
 
 @Entity
 public class Visit extends PanacheEntity {
-  private LocalDate visitDate;
+  private LocalDate date;
   private String description;
 
   @ManyToOne
   private Pet pet;
 
-  public LocalDate getVisitDate() {
-    return visitDate;
+  public LocalDate getDate() {
+    return date;
   }
 
-  public void setVisitDate(LocalDate visitDate) {
-    this.visitDate = visitDate;
+  public void setDate(LocalDate visitDate) {
+    this.date = visitDate;
   }
 
   public String getDescription() {
