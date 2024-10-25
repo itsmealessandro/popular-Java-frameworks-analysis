@@ -32,16 +32,11 @@ public class DatabaseService {
     return databaseName;
   }
 
-  public String getPetName() {
-    Pet pet = Pet.findAll().firstResult();
-    return pet.getName();
-  }
-
-  @Transactional
-  public List<Pet> getAllPets2() {
-    return Pet.listAll(); // Usa Panache per ottenere tutti i Pet
-  }
-
+  /**
+   * returns all tables of DB
+   * 
+   * @return
+   */
   @Transactional
   public String listTables() {
     try (Connection conn = dataSource.getConnection();
@@ -67,41 +62,11 @@ public class DatabaseService {
     }
   }
 
-  @Transactional
-  public String getAllPets() {
-    StringBuilder stringBuilder = new StringBuilder();
-    String query = "SELECT * FROM pets"; // Assicurati di usare il nome corretto della tabella
-
-    try (Connection conn = dataSource.getConnection()) {
-      if (conn == null) {
-        return "Connection failed"; // Aggiunto log di errore
-      }
-      System.out.println("Connection established"); // Log per confermare la connessione
-
-      try (Statement stmt = conn.createStatement();
-          ResultSet rs = stmt.executeQuery(query)) {
-
-        if (!rs.isBeforeFirst()) {
-          return "No pets found"; // Nessun record trovato
-        }
-
-        while (rs.next()) {
-          String petName = rs.getString("name");
-          stringBuilder.append(petName).append("\n");
-        }
-      }
-
-    } catch (SQLException e) {
-      e.printStackTrace(); // Log dell'eccezione
-      return "SQL error: " + e.getMessage();
-    } catch (Exception e) {
-      e.printStackTrace(); // Log di errori generali
-      return "Error: " + e.getMessage();
-    }
-
-    return stringBuilder.toString();
-  }
-
+  /**
+   * Test Method that retuns all instanced of the database
+   * 
+   * @return
+   */
   public String getAllInstances() {
     StringBuilder result = new StringBuilder();
 
@@ -142,6 +107,51 @@ public class DatabaseService {
     }
 
     return result.toString();
+  }
+
+  public String getPetName() {
+    Pet pet = Pet.findAll().firstResult();
+    return pet.getName();
+  }
+
+  @Transactional
+  public List<Pet> getAllPets2() {
+    return Pet.listAll(); // Usa Panache per ottenere tutti i Pet
+  }
+
+  @Transactional
+  public String getAllPets() {
+    StringBuilder stringBuilder = new StringBuilder();
+    String query = "SELECT * FROM pets"; // Assicurati di usare il nome corretto della tabella
+
+    try (Connection conn = dataSource.getConnection()) {
+      if (conn == null) {
+        return "Connection failed"; // Aggiunto log di errore
+      }
+      System.out.println("Connection established"); // Log per confermare la connessione
+
+      try (Statement stmt = conn.createStatement();
+          ResultSet rs = stmt.executeQuery(query)) {
+
+        if (!rs.isBeforeFirst()) {
+          return "No pets found"; // Nessun record trovato
+        }
+
+        while (rs.next()) {
+          String petName = rs.getString("name");
+          stringBuilder.append(petName).append("\n");
+        }
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace(); // Log dell'eccezione
+      return "SQL error: " + e.getMessage();
+    } catch (Exception e) {
+      e.printStackTrace(); // Log di errori generali
+      return "Error: " + e.getMessage();
+    }
+
+    return stringBuilder.toString();
   }
 
   // NOTE: petclinic methods
