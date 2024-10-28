@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 
 @Entity
 public class Vet extends PanacheEntity {
+  private Integer id;
   public String firstName;
   public String lastName;
 
@@ -22,5 +23,13 @@ public class Vet extends PanacheEntity {
 
   public void setLastName(String lastName) {
     this.lastName = lastName;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
   }
 }
