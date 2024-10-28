@@ -1,0 +1,25 @@
+{
+  "resources" : {
+    "includes" : [ {
+      "pattern" : "\\Qapplication.properties\\E"
+    }, {
+      "pattern" : "\\Qlogback.xml\\E"
+    }, {
+      "pattern" : "\\Qdb/migration/V1__schema.sql\\E"
+    }, {
+      "pattern" : "\\QMETA-INF/micronaut/io.micronaut.core.beans.BeanIntrospectionReference/example.micronaut.$PetSave$Introspection\\E"
+    }, {
+      "pattern" : "\\QMETA-INF/micronaut/io.micronaut.core.beans.BeanIntrospectionReference/example.micronaut.$Pet$Introspection\\E"
+    }, {
+      "pattern" : "\\QMETA-INF/micronaut/io.micronaut.core.beans.BeanIntrospectionReference/example.micronaut.$NameDto$Introspection\\E"
+    }, {
+      "pattern" : "\\QMETA-INF/micronaut/io.micronaut.inject.BeanDefinitionReference/example.micronaut.$PetRepository$Intercepted$Definition\\E"
+    }, {
+      "pattern" : "\\QMETA-INF/micronaut/io.micronaut.inject.BeanDefinitionReference/example.micronaut.$PetResource$Definition\\E"
+    }, {
+      "pattern" : "\\QMETA-INF/micronaut/io.micronaut.inject.BeanDefinitionReference/example.micronaut.$PetResource$Definition$Intercepted$Definition\\E"
+    } ],
+    "excludes" : [ ]
+  },
+  "bundles" : [ ]
+}

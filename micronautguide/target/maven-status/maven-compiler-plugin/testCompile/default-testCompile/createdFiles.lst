@@ -1,0 +1,8 @@
+example/micronaut/PetResourceTest.class
+example/micronaut/MicronautguideTest.class
+example/micronaut/$PetResourceTest$Definition$Exec.class
+META-INF/micronaut/io.micronaut.inject.BeanDefinitionReference/example.micronaut.$MicronautguideTest$Definition
+META-INF/micronaut/io.micronaut.inject.BeanDefinitionReference/example.micronaut.$PetResourceTest$Definition
+example/micronaut/$MicronautguideTest$Definition.class
+example/micronaut/$MicronautguideTest$Definition$Exec.class
+example/micronaut/$PetResourceTest$Definition.class
