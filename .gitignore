@@ -2,3 +2,4 @@ nb-configuration.xml
 .quarkus/
 **/target/
 **/.idea/
+spring-petclinic-rest-master/target
