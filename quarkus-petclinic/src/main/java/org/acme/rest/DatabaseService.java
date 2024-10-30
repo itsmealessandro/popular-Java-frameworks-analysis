@@ -25,6 +25,8 @@ public class DatabaseService {
   @Inject
   EntityManager entityManager;
 
+  // TEST methods
+  // ---------------------------------------------------------------------------------------
   @Transactional
   public String getDatabaseName() {
     // Query SQL per ottenere il nome del database
@@ -119,43 +121,9 @@ public class DatabaseService {
     return Pet.listAll(); // Usa Panache per ottenere tutti i Pet
   }
 
-  @Transactional
-  public String getAllPets() {
-    StringBuilder stringBuilder = new StringBuilder();
-    String query = "SELECT * FROM pets"; // Assicurati di usare il nome corretto della tabella
+  // Owner methods
+  // ---------------------------------------------------------------------------------------
 
-    try (Connection conn = dataSource.getConnection()) {
-      if (conn == null) {
-        return "Connection failed"; // Aggiunto log di errore
-      }
-      System.out.println("Connection established"); // Log per confermare la connessione
-
-      try (Statement stmt = conn.createStatement();
-          ResultSet rs = stmt.executeQuery(query)) {
-
-        if (!rs.isBeforeFirst()) {
-          return "No pets found"; // Nessun record trovato
-        }
-
-        while (rs.next()) {
-          String petName = rs.getString("name");
-          stringBuilder.append(petName).append("\n");
-        }
-      }
-
-    } catch (SQLException e) {
-      e.printStackTrace(); // Log dell'eccezione
-      return "SQL error: " + e.getMessage();
-    } catch (Exception e) {
-      e.printStackTrace(); // Log di errori generali
-      return "Error: " + e.getMessage();
-    }
-
-    return stringBuilder.toString();
-  }
-
-  // NOTE: petclinic methods
-  // --------------------------------------------------------
   @Transactional
   public void addOwner(String firstName, String lastName, String address, String city, String telephone) {
     String query = "INSERT INTO owners (first_name, last_name, address, city, telephone) VALUES (?, ?, ?, ?, ?)";
@@ -255,6 +223,8 @@ public class DatabaseService {
     }
   }
 
+  // PET methods
+  // ----------------------------------------------------------------------------------------------
   @Transactional
   public List<Pet> listPets() {
     String query = "SELECT * FROM pets";
@@ -264,8 +234,10 @@ public class DatabaseService {
         ResultSet rs = stmt.executeQuery(query)) {
       while (rs.next()) {
         Pet pet = new Pet();
+        pet.setId(rs.getInt("id"));
         pet.setName(rs.getString("name"));
         pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
+        // TODO: aad reference if are presents
         pets.add(pet);
       }
     } catch (SQLException e) {
@@ -283,6 +255,7 @@ public class DatabaseService {
       ResultSet rs = stmt.executeQuery();
       if (rs.next()) {
         pet = new Pet();
+        pet.setId(rs.getInt("id"));
         pet.setName(rs.getString("name"));
         pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
       }
@@ -292,7 +265,8 @@ public class DatabaseService {
     return pet;
   }
 
-  // Vet Management Methods
+  // PET methods
+  // ----------------------------------------------------------------------------------------------
   @Transactional
   public void addVet(String firstName, String lastName, List<Specialty> specialties) {
     String query = "INSERT INTO vets (first_name, last_name) VALUES (?, ?)";
@@ -308,7 +282,7 @@ public class DatabaseService {
         for (Specialty specialty : specialties) {
           String specialtyQuery = "INSERT INTO vet_specialties (vet_id, specialty_id) VALUES (?, ?)";
           try (PreparedStatement specialtyStmt = conn.prepareStatement(specialtyQuery)) {
-            specialtyStmt.setInt(1, vetId);
+            specialtyStmt.setInt(1, vetId); // BUG: must check
             specialtyStmt.executeUpdate();
           }
         }
@@ -327,6 +301,7 @@ public class DatabaseService {
         ResultSet rs = stmt.executeQuery(query)) {
       while (rs.next()) {
         Vet vet = new Vet();
+        vet.setId(rs.getInt("id"));
         vet.setFirstName(rs.getString("first_name"));
         vet.setLastName(rs.getString("last_name"));
         // Assume we can fetch specialties in another query or map
@@ -338,7 +313,8 @@ public class DatabaseService {
     return vets;
   }
 
-  // Specialty Management Methods
+  // Specialty methods
+  // ----------------------------------------------------------------------------------------------
   @Transactional
   public void addSpecialty(String specialtyName) {
     String query = "INSERT INTO specialties (name) VALUES (?)";
@@ -368,7 +344,8 @@ public class DatabaseService {
     return specialties;
   }
 
-  // Visit Management Methods
+  // Visit Methods
+  // -----------------------------------------------------------------------------------------------
   @Transactional
   public void addVisit(int petId, String visitDate, String description) {
     String query = "INSERT INTO visits (pet_id, visit_date, description) VALUES (?, ?, ?)";
@@ -391,6 +368,7 @@ public class DatabaseService {
         ResultSet rs = stmt.executeQuery(query)) {
       while (rs.next()) {
         Visit visit = new Visit();
+        visit.setId(rs.getInt("id"));
         visit.setDate(rs.getDate("visit_date").toLocalDate());
         visit.setDescription(rs.getString("description"));
         visits.add(visit);
@@ -401,7 +379,8 @@ public class DatabaseService {
     return visits;
   }
 
-  // Pet Type Management Methods
+  // Types Methods
+  // -----------------------------------------------------------------------------------------------
   @Transactional
   public void addPetType(String typeName) {
     String query = "INSERT INTO types (name) VALUES (?)";
