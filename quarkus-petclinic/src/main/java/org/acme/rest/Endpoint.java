@@ -108,8 +108,7 @@ public class Endpoint {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response addPetToOwner(@PathParam("ownerId") int ownerId, Pet pet) {
-    // TODO:databaseService.addPetToOwner(ownerId, pet.getName(),
-    // pet.getBirthDate().toString(), pet.getTypeId());
+    databaseService.addPetToOwner(ownerId, pet.getName(), pet.getBirthDate().toString(), pet.getType().getId());
     return Response.status(Response.Status.CREATED).entity(pet).build();
   }
 
@@ -133,15 +132,55 @@ public class Endpoint {
     return Response.ok(pet).build();
   }
 
+  @POST
+  @Path("/pets")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response addPet(Pet pet) {
+    // BUG: databaseService.addPet(pet.getName(), pet.getBirthDate(), pet.getType(),
+    // pet.getOwnerId());
+    return Response.status(Response.Status.CREATED).entity(pet).build();
+  }
+
+  @PUT
+  @Path("/pets/{petId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response updatePet(@PathParam("petId") int petId, Pet pet) {
+    // BUG: boolean updated = databaseService.updatePet(petId, pet.getName(),
+    // pet.getBirthDate(), pet.getType());
+    /*
+     * if (!updated) {
+     * return Response.status(Response.Status.NOT_FOUND).build();
+     * }
+     */
+    return Response.ok(pet).build();
+  }
+
+  @DELETE
+  @Path("/pets/{petId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deletePet(@PathParam("petId") int petId) {
+    /*
+     * BUG: boolean deleted = databaseService.deletePet(petId);
+     * if (!deleted) {
+     * return Response.status(Response.Status.NOT_FOUND).build();
+     * }
+     */
+    return Response.noContent().build();
+  }
+
   // Add a vet (POST /vets)
   @POST
   @Path("/vets")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response addVet(Vet vet) {
-    // TODO:databaseService.addVet(vet.getFirstName(), vet.getLastName(),
+    // databaseService.addVet(vet.getFirstName(), vet.getLastName(),
     // vet.getSpecialties());
-    return Response.status(Response.Status.CREATED).entity(vet).build();
+    // BUG: solve this
+    return Response.status(Response.Status.NOT_IMPLEMENTED).entity(vet).build();
+    // return Response.status(Response.Status.CREATED).entity(vet).build();
   }
 
   // List vets (GET /vets)
@@ -158,8 +197,7 @@ public class Endpoint {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response addVisit(Visit visit) {
-    // TODO: databaseService.addVisit(visit.getPetId(), visit.getDate().toString(),
-    // visit.getDescription());
+    databaseService.addVisit(visit.getPet().getId(), visit.getDate().toString(), visit.getDescription());
     return Response.status(Response.Status.CREATED).entity(visit).build();
   }
 
