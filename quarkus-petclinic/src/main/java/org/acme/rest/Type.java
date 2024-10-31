@@ -15,4 +15,12 @@ public class Type extends PanacheEntity {
   public void setId(Integer id) {
     this.id = id;
   }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public String getName() {
+    return name;
+  }
 }

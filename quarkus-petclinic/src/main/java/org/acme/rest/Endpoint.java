@@ -40,18 +40,9 @@ public class Endpoint {
     return "jakarta and quarkus from path /hello";
   }
 
+  // ---------------------------------------------- pet clinic methods
   // Add a pet owner (POST /owners)
-  @POST
-  @Path("/owners")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response addOwner(Owner owner) {
-    databaseService.addOwner(owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(),
-        owner.getTelephone());
-    return Response.status(Response.Status.CREATED).entity(owner).build();
-  }
 
-  // List pet owners (GET /owners)
   @GET
   @Path("/owners")
   @Produces(MediaType.APPLICATION_JSON)
@@ -69,6 +60,16 @@ public class Endpoint {
       return Response.status(Response.Status.NOT_FOUND).build();
     }
     return Response.ok(owner).build();
+  }
+
+  @POST
+  @Path("/owners")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response addOwner(Owner owner) {
+    databaseService.addOwner(owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(),
+        owner.getTelephone());
+    return Response.status(Response.Status.CREATED).entity(owner).build();
   }
 
   // Update a pet owner (PUT /owners/{ownerId})
@@ -172,5 +173,37 @@ public class Endpoint {
 
   // Other endpoints can be added similarly for managing specialties, vet types,
   // etc.
+
+  @GET
+  @Path("/specialties")
+  @Produces(MediaType.APPLICATION_JSON)
+  public List<Specialty> listSpecialties() {
+    return databaseService.listSpecialties();
+  }
+
+  @POST
+  @Path("/specialties")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response addSpecialty(Specialty specialty) {
+    databaseService.addSpecialty(specialty.getName());
+    return Response.status(Response.Status.CREATED).entity(specialty).build();
+  }
+
+  @GET
+  @Path("/pettypes")
+  @Produces(MediaType.APPLICATION_JSON)
+  public List<Type> listPetTypes() {
+    return databaseService.listPetTypes();
+  }
+
+  @POST
+  @Path("/pettypes")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response addPetType(Type petType) {
+    databaseService.addPetType(petType.getName());
+    return Response.status(Response.Status.CREATED).entity(petType).build();
+  }
 
 }
