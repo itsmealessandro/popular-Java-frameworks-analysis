@@ -148,6 +148,7 @@ public class DatabaseService {
       ResultSet rs = stmt.executeQuery();
       while (rs.next()) {
         Owner owner = new Owner();
+        owner.setId(rs.getInt("id"));
         owner.setFirstName(rs.getString("first_name"));
         owner.setLastName(rs.getString("last_name"));
         owner.setCity(rs.getString("city"));
@@ -169,6 +170,7 @@ public class DatabaseService {
       stmt.setInt(1, ownerId);
       ResultSet rs = stmt.executeQuery();
       if (rs.next()) {
+        owner.setId(rs.getInt("id"));
         owner.setFirstName(rs.getString("first_name"));
         owner.setLastName(rs.getString("last_name"));
         owner.setCity(rs.getString("city"));
@@ -265,7 +267,7 @@ public class DatabaseService {
     return pet;
   }
 
-  // PET methods
+  // VET methods
   // ----------------------------------------------------------------------------------------------
   @Transactional
   public void addVet(String firstName, String lastName, List<Specialty> specialties) {
@@ -401,6 +403,7 @@ public class DatabaseService {
         ResultSet rs = stmt.executeQuery(query)) {
       while (rs.next()) {
         Type type = new Type();
+        type.setId(rs.getInt("id"));
         type.setName(rs.getString("name"));
         types.add(type);
       }
