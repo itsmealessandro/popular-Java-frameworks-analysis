@@ -105,6 +105,8 @@ public class Endpoint {
   }
 
   // Add a pet to an owner (POST /owners/{ownerId}/pets)
+  // Query: INSERT INTO pets (name, birth_date, owner_id, type_id) VALUES (?, ?,
+  // ?, ?)
   @POST
   @Path("/owners/{ownerId}/pets")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -139,8 +141,8 @@ public class Endpoint {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response addPet(Pet pet) {
-    // BUG: databaseService.addPet(pet.getName(), pet.getBirthDate(), pet.getType(),
-    // pet.getOwnerId());
+    // databaseService.addPet(pet.getName(), pet.getBirthDate(), pet.getType());
+    databaseService.addPet(pet);
     return Response.status(Response.Status.CREATED).entity(pet).build();
   }
 

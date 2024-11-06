@@ -125,6 +125,27 @@ public class DatabaseService {
   // ---------------------------------------------------------------------------------------
 
   @Transactional
+  public Owner getOwner(int ownerId) {
+    String query = "SELECT * FROM owners WHERE id = ?";
+    Owner owner = new Owner();
+    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setInt(1, ownerId);
+      ResultSet rs = stmt.executeQuery();
+      if (rs.next()) {
+        owner.setId(rs.getInt("id"));
+        owner.setFirstName(rs.getString("first_name"));
+        owner.setLastName(rs.getString("last_name"));
+        owner.setCity(rs.getString("city"));
+        owner.setTelephone(rs.getString("telephone"));
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return owner;
+  }
+
+  @Transactional
   public void addOwner(String firstName, String lastName, String address, String city, String telephone) {
     String query = "INSERT INTO owners (first_name, last_name, address, city, telephone) VALUES (?, ?, ?, ?, ?)";
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -160,27 +181,6 @@ public class DatabaseService {
       e.printStackTrace();
     }
     return owners;
-  }
-
-  @Transactional
-  public Owner getOwner(int ownerId) {
-    String query = "SELECT * FROM owners WHERE id = ?";
-    Owner owner = new Owner();
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setInt(1, ownerId);
-      ResultSet rs = stmt.executeQuery();
-      if (rs.next()) {
-        owner.setId(rs.getInt("id"));
-        owner.setFirstName(rs.getString("first_name"));
-        owner.setLastName(rs.getString("last_name"));
-        owner.setCity(rs.getString("city"));
-        owner.setTelephone(rs.getString("telephone"));
-      }
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-    return owner;
   }
 
   @Transactional
@@ -265,6 +265,20 @@ public class DatabaseService {
       e.printStackTrace();
     }
     return pet;
+  }
+
+  @Transactional
+  public void addPet(Pet pet) {
+    String query = "INSET INTO pets (name, birth_date,type_id) VALUES (?,?,?)";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+      stmt.setString(1, pet.getName());
+      stmt.setDate(2, Date.valueOf(pet.getBirthDate()));
+      stmt.setInt(3, pet.getType().getId());
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
   }
 
   // VET methods
