@@ -268,13 +268,15 @@ public class DatabaseService {
   }
 
   @Transactional
-  public void addPet(Pet pet) {
-    String query = "INSET INTO pets (name, birth_date,type_id) VALUES (?,?,?)";
+  public void addPet(Pet pet) { // Tested
+    String query = "INSERT INTO pets (name, birth_date,type_id) VALUES (?,?,?)";
     try (Connection conn = dataSource.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
       stmt.setString(1, pet.getName());
       stmt.setDate(2, Date.valueOf(pet.getBirthDate()));
       stmt.setInt(3, pet.getType().getId());
+      stmt.executeUpdate();
+
     } catch (SQLException e) {
       e.printStackTrace();
     }
