@@ -259,21 +259,28 @@ public class DatabaseService {
   // PET methods
   // ----------------------------------------------------------------------------------------------
 
-  public Pet getPet(int petId) throws NotFoundException {
+  /**
+   * @param petId
+   * @return the Pet Found
+   * @throws NotFoundException
+   */
+  public Pet getPet(long petId) throws NotFoundException {
     String query = "SELECT * FROM pets WHERE id = ?";
     Pet pet = null;
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setInt(1, petId);
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setLong(1, petId);
       ResultSet rs = stmt.executeQuery();
-      if (rs.next()) {
-        pet = new Pet();
-        pet.setId(rs.getInt("id"));
-        pet.setName(rs.getString("name"));
-        pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
-        pet.setOwner(getOwner(rs.getInt("owner_id")));
-
-        pet.setType(getType(rs.getInt("type_id")));
+      if (!rs.next()) {
+        throw new NotFoundException("Pet not found");
       }
+      pet = new Pet();
+      pet.setId(rs.getInt("id"));
+      pet.setName(rs.getString("name"));
+      pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
+      pet.setOwner(getOwner(rs.getInt("owner_id")));
+
+      pet.setType(getType(rs.getInt("type_id")));
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -546,6 +553,26 @@ public class DatabaseService {
       e.printStackTrace();
     }
     return types;
+  }
+
+  public Pet deletePet(long petId) throws NotFoundException, SQLException {
+
+    Pet pet = getPet(petId);
+
+    String query_delete = "DELETE FROM pets WHERE id=?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement stmt_delete = connection.prepareStatement(query_delete);) {
+
+      stmt_delete.setLong(1, petId);
+      stmt_delete.executeUpdate();
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+    return pet;
+
   }
 
 }

@@ -183,14 +183,17 @@ public class Endpoint {
   @DELETE
   @Path("/pets/{petId}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response deletePet(@PathParam("petId") int petId) {
-    /*
-     * BUG: boolean deleted = databaseService.deletePet(petId);
-     * if (!deleted) {
-     * return Response.status(Response.Status.NOT_FOUND).build();
-     * }
-     */
-    return Response.noContent().build();
+  public Response deletePet(@PathParam("petId") long petId) {
+
+    try {
+      Pet pet = databaseService.deletePet(petId);
+      return Response.ok(pet).build();
+
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   // Add a pet to an owner (POST /owners/{ownerId}/pets)
