@@ -14,6 +14,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.sql.SQLException;
 import java.util.List;
 
 import org.acme.utility.UtilityMaps;
@@ -122,8 +124,14 @@ public class Endpoint {
   @GET
   @Path("/pets")
   @Produces(MediaType.APPLICATION_JSON)
-  public List<Pet> listPets() {
-    return databaseService.listPets();
+  public Response listPets() {
+    try {
+
+      List<Pet> petlist = databaseService.listPets();
+      return Response.ok(petlist).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   // Get a pet by ID (GET /pets/{petId})
@@ -169,15 +177,19 @@ public class Endpoint {
   @Path("/pets/{petId}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response updatePet(@PathParam("petId") int petId, Pet pet) {
-    // BUG: boolean updated = databaseService.updatePet(petId, pet.getName(),
-    // pet.getBirthDate(), pet.getType());
-    /*
-     * if (!updated) {
-     * return Response.status(Response.Status.NOT_FOUND).build();
-     * }
-     */
-    return Response.ok(pet).build();
+  public Response updatePet(@PathParam("petId") long petId, Pet pet) {
+
+    try {
+      pet.setId(petId);
+
+      databaseService.updatePet(petId, pet);
+      return Response.ok(pet).build();
+
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   @DELETE

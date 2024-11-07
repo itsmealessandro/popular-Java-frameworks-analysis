@@ -117,11 +117,11 @@ public class DatabaseService {
   // ---------------------------------------------------------------------------------------
 
   @Transactional
-  public Owner getOwner(int ownerId) {
+  public Owner getOwner(long ownerId) {
     String query = "SELECT * FROM owners WHERE id = ?";
     Owner owner = new Owner();
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setInt(1, ownerId);
+      stmt.setLong(1, ownerId);
       ResultSet rs = stmt.executeQuery();
       if (!rs.next())
         return null;
@@ -242,7 +242,7 @@ public class DatabaseService {
   }
 
   @Transactional
-  public List<Pet> listPets() {
+  public List<Pet> listPets() throws SQLException {
     String query = "SELECT * FROM pets";
     List<Pet> pets = new ArrayList<>();
     try (Connection conn = dataSource.getConnection();
@@ -253,11 +253,20 @@ public class DatabaseService {
         pet.setId(rs.getInt("id"));
         pet.setName(rs.getString("name"));
         pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
-        // TODO: aad reference if are presents
+        long ownerId = rs.getLong("owner_id");
+        if (ownerId != 0) {
+          pet.setOwner(getOwner(ownerId));
+        }
+        long typeID = rs.getLong("type_id");
+        if (typeID == 0) {
+          throw new SQLException("type ID not found");
+        }
+        pet.setType(getType(typeID));
         pets.add(pet);
       }
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
     return pets;
   }
@@ -298,6 +307,25 @@ public class DatabaseService {
 
     } catch (SQLException e) {
       e.printStackTrace();
+    }
+
+  }
+
+  public void updatePet(long petId, Pet pet) throws NotFoundException, SQLException {
+    String query = "UPDATE pets SET name = ?, birth_date = ?, type_id = ? WHERE id = ?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(query)) {
+      stmt.setString(1, pet.getName());
+      stmt.setDate(2, Date.valueOf(pet.getBirthDate()));
+      // WARNING: TYPE id and name mismatch not checked
+      stmt.setLong(3, pet.getType().getId());
+      stmt.setLong(4, petId);
+
+      stmt.executeUpdate();
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
     }
 
   }
