@@ -555,6 +555,12 @@ public class DatabaseService {
     return types;
   }
 
+  /**
+   * @param petId
+   * @return
+   * @throws NotFoundException
+   * @throws SQLException
+   */
   public Pet deletePet(long petId) throws NotFoundException, SQLException {
 
     Pet pet = getPet(petId);
@@ -575,4 +581,21 @@ public class DatabaseService {
 
   }
 
+  /**
+   * @param ownerId
+   * @param petId
+   * @return Pet data if that pet is related to that owner
+   * @throws SQLException
+   * @throws NotFoundException
+   */
+  public Pet checkOwnerPet(long ownerId, long petId) throws SQLException, NotFoundException {
+
+    Pet pet = getPet(petId);
+    Owner owner = getOwner(ownerId);
+    if (pet.getOwner().getId() != owner.getId()) {
+      throw new NotFoundException("Not that owner's pet");
+    }
+    return pet;
+
+  }
 }

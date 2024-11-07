@@ -216,6 +216,22 @@ public class Endpoint {
     }
   }
 
+  @GET
+  @Path("/owners/{ownerId}/pets/{petId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response checkOwnerPet(@PathParam("ownerId") long ownerId, @PathParam("petId") long petId) {
+
+    try {
+      Pet pet = databaseService.checkOwnerPet(ownerId, petId);
+      return Response.ok(pet).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
   // Add a vet (POST /vets)
   @POST
   @Path("/vets")
