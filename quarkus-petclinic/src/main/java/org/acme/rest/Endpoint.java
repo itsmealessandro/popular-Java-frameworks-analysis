@@ -108,28 +108,6 @@ public class Endpoint {
     return Response.noContent().build();
   }
 
-  // Add a pet to an owner (POST /owners/{ownerId}/pets)
-  // Query: INSERT INTO pets (name, birth_date, owner_id, type_id) VALUES (?, ?,
-  // ?, ?)
-  @POST
-  @Path("/owners/{ownerId}/pets")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response addPetToOwner(@PathParam("ownerId") long ownerId, Pet pet) {
-    try {
-
-      databaseService.addPetToOwner(ownerId, pet);
-      pet.setOwner(databaseService.getOwner(ownerId));
-
-      return Response.ok(pet).build();
-
-    } catch (NotFoundException e) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    } catch (SQLException e) {
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-    }
-  }
-
   // List pets (GET /pets)
   @GET
   @Path("/pets")
@@ -213,6 +191,26 @@ public class Endpoint {
      * }
      */
     return Response.noContent().build();
+  }
+
+  // Add a pet to an owner (POST /owners/{ownerId}/pets)
+  @PUT
+  @Path("/owners/{ownerId}/pets")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response addPetToOwner(@PathParam("ownerId") long ownerId, Pet pet) {
+    try {
+
+      databaseService.addPetToOwner(ownerId, pet);
+      pet.setOwner(databaseService.getOwner(ownerId));
+
+      return Response.ok(pet).build();
+
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   // Add a vet (POST /vets)
