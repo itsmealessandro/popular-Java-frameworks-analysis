@@ -111,16 +111,6 @@ public class DatabaseService {
     return result.toString();
   }
 
-  public String getPetName() {
-    Pet pet = Pet.findAll().firstResult();
-    return pet.getName();
-  }
-
-  @Transactional
-  public List<Pet> getAllPets2() {
-    return Pet.listAll(); // Usa Panache per ottenere tutti i Pet
-  }
-
   // Owner methods
   // ---------------------------------------------------------------------------------------
 
