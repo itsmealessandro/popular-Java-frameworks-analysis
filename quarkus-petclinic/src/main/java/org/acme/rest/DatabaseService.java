@@ -15,6 +15,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
@@ -203,13 +204,13 @@ public class DatabaseService {
   }
 
   @Transactional
-  public void addPetToOwner(int ownerId, String petName, String birthDate, int typeId) {
+  public void addPetToOwner(long ownerId, String petName, String birthDate, long typeId) {
     String query = "INSERT INTO pets (name, birth_date, owner_id, type_id) VALUES (?, ?, ?, ?)";
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
       stmt.setString(1, petName);
       stmt.setDate(2, Date.valueOf(birthDate));
-      stmt.setInt(3, ownerId);
-      stmt.setInt(4, typeId);
+      stmt.setLong(3, ownerId);
+      stmt.setLong(4, typeId);
       stmt.executeUpdate();
     } catch (SQLException e) {
       e.printStackTrace();
@@ -219,7 +220,6 @@ public class DatabaseService {
   // PET methods
   // ----------------------------------------------------------------------------------------------
 
-  @Transactional
   public Pet getPet(int petId) throws NotFoundException {
     String query = "SELECT * FROM pets WHERE id = ?";
     Pet pet = null;
@@ -231,7 +231,6 @@ public class DatabaseService {
         pet.setId(rs.getInt("id"));
         pet.setName(rs.getString("name"));
         pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
-        // TODO: references Owner
         pet.setOwner(getOwner(rs.getInt("owner_id")));
 
         pet.setType(getType(rs.getInt("type_id")));
@@ -263,15 +262,36 @@ public class DatabaseService {
     return pets;
   }
 
-  @Transactional
+  /**
+   * @param pet
+   *            add a new Pet if the Type exists
+   * @exception BadRequestException if type do not exists or its id does not match
+   */
   public void addPet(Pet pet) { // Tested
     String query = "INSERT INTO pets (name, birth_date,type_id) VALUES (?,?,?)";
+
+    Type type_from_request = pet.getType();
+    System.out.println(type_from_request + ": is the typer from request in DatabaseService");
+    Type type = getType(type_from_request.getId());
+    if (type == null || type.getName() != type_from_request.getName()) {
+      System.out.println("bad request" + "\n" + type);
+      throw new BadRequestException();
+    }
     try (Connection conn = dataSource.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
       stmt.setString(1, pet.getName());
       stmt.setDate(2, Date.valueOf(pet.getBirthDate()));
-      stmt.setInt(3, pet.getType().getId());
-      stmt.executeUpdate();
+      stmt.setLong(3, pet.getType().getId());
+      try (ResultSet keys = stmt.getGeneratedKeys()) {
+        if (!keys.next()) {
+          throw new SQLException("No key");
+        }
+        Long key = keys.getLong(1);
+        pet.setId(key.intValue());
+
+        stmt.executeUpdate();
+
+      }
 
     } catch (SQLException e) {
       e.printStackTrace();
@@ -361,10 +381,10 @@ public class DatabaseService {
   // Visit Methods
   // -----------------------------------------------------------------------------------------------
   @Transactional
-  public void addVisit(int petId, String visitDate, String description) {
+  public void addVisit(long petId, String visitDate, String description) {
     String query = "INSERT INTO visits (pet_id, visit_date, description) VALUES (?, ?, ?)";
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setInt(1, petId);
+      stmt.setLong(1, petId);
       stmt.setDate(2, Date.valueOf(visitDate));
       stmt.setString(3, description);
       stmt.executeUpdate();
@@ -400,15 +420,16 @@ public class DatabaseService {
    * @param id
    * @return Type if found, null if not found
    */
-  @Transactional
-  public Type getType(int id) {
+  public Type getType(long id) {
+
     Type type = new Type();
 
     String query = "SELECT * FROM types WHERE id=?";
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement stmt = connection.prepareStatement(query)) {
-      stmt.setInt(1, id);
+      System.out.println(id);
+      stmt.setLong(1, id);
       ResultSet rs = stmt.executeQuery();
       if (!rs.next())
         return null;

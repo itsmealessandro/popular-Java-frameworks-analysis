@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 @Entity
 public class Pet extends PanacheEntity {
-  private Integer id;
   private String name;
   private LocalDate birthDate;
 
@@ -17,11 +16,11 @@ public class Pet extends PanacheEntity {
   @ManyToOne
   private Owner owner;
 
-  public Integer getId() {
+  public long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(long id) {
     this.id = id;
   }
 

@@ -5,18 +5,18 @@ import jakarta.persistence.Entity;
 
 @Entity
 public class Type extends PanacheEntity {
-  private Integer id;
+  private long id;
   public String name;
 
   public void setName(String name) {
     this.name = name;
   }
 
-  public void setId(Integer id) {
+  public void setId(long id) {
     this.id = id;
   }
 
-  public Integer getId() {
+  public long getId() {
     return id;
   }
 

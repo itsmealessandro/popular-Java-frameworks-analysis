@@ -1,6 +1,7 @@
 package org.acme.rest;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -112,7 +113,7 @@ public class Endpoint {
   @Path("/owners/{ownerId}/pets")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response addPetToOwner(@PathParam("ownerId") int ownerId, Pet pet) {
+  public Response addPetToOwner(@PathParam("ownerId") long ownerId, Pet pet) {
     databaseService.addPetToOwner(ownerId, pet.getName(), pet.getBirthDate().toString(), pet.getType().getId());
     return Response.status(Response.Status.CREATED).entity(pet).build();
   }
@@ -141,14 +142,27 @@ public class Endpoint {
 
   }
 
+  /**
+   * @param pet
+   * @return the created Pet
+   */
   @POST
   @Path("/pets")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response addPet(Pet pet) {
-    // databaseService.addPet(pet.getName(), pet.getBirthDate(), pet.getType());
-    databaseService.addPet(pet);
-    return Response.status(Response.Status.CREATED).entity(pet).build();
+    try {
+
+      System.out.println(pet.getType() + ": is the typer from request in Endpoint");
+      databaseService.addPet(pet);
+      return Response.status(Response.Status.CREATED).entity(pet).build();
+
+    } catch (BadRequestException e) {
+
+      System.out.println("nah");
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
   }
 
   @PUT
