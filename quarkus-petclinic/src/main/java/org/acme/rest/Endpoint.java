@@ -130,17 +130,14 @@ public class Endpoint {
   @Path("/pets/{petId}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response getPet(@PathParam("petId") int petId) {
-    try {
 
-      Pet pet = databaseService.getPet(petId);
-      if (pet == null) {
-        return Response.status(Response.Status.NOT_FOUND).build();
-      }
-      return Response.ok(pet).build();
-    } catch (NotFoundException e) {
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-
+    Pet pet = databaseService.getPet(petId);
+    if (pet == null) {
+      return Response.status(Response.Status.NOT_FOUND).build();
     }
+    if (pet.getType() == null)
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    return Response.ok(pet).build();
 
   }
 

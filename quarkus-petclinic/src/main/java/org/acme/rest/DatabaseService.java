@@ -122,13 +122,13 @@ public class DatabaseService {
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
       stmt.setInt(1, ownerId);
       ResultSet rs = stmt.executeQuery();
-      if (rs.next()) {
-        owner.setId(rs.getInt("id"));
-        owner.setFirstName(rs.getString("first_name"));
-        owner.setLastName(rs.getString("last_name"));
-        owner.setCity(rs.getString("city"));
-        owner.setTelephone(rs.getString("telephone"));
-      }
+      if (!rs.next())
+        return null;
+      owner.setId(rs.getInt("id"));
+      owner.setFirstName(rs.getString("first_name"));
+      owner.setLastName(rs.getString("last_name"));
+      owner.setCity(rs.getString("city"));
+      owner.setTelephone(rs.getString("telephone"));
 
     } catch (SQLException e) {
       e.printStackTrace();
@@ -232,12 +232,9 @@ public class DatabaseService {
         pet.setName(rs.getString("name"));
         pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
         // TODO: references Owner
-        Type type = getType(rs.getInt("type_id"));
-        if (type == null)
-          throw new NotFoundException("type not found");
         pet.setOwner(getOwner(rs.getInt("owner_id")));
 
-        pet.setType(type);
+        pet.setType(getType(rs.getInt("type_id")));
       }
     } catch (SQLException e) {
       e.printStackTrace();
