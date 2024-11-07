@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 
 import javax.sql.DataSource;
 
@@ -203,17 +204,55 @@ public class DatabaseService {
     }
   }
 
-  @Transactional
-  public void addPetToOwner(long ownerId, String petName, String birthDate, long typeId) {
-    String query = "INSERT INTO pets (name, birth_date, owner_id, type_id) VALUES (?, ?, ?, ?)";
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setString(1, petName);
-      stmt.setDate(2, Date.valueOf(birthDate));
-      stmt.setLong(3, ownerId);
-      stmt.setLong(4, typeId);
-      stmt.executeUpdate();
+  private Pet getPetByName(String name) throws SQLException, NotFoundException {
+    Pet pet = new Pet();
+    String query = "SELECT * FROM pets WHERE name = ?";
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(query);) {
+      stmt.setString(1, name);
+      ResultSet rs = stmt.executeQuery();
+      if (!rs.next()) {
+        throw new NotFoundException("Pet not found from name");
+      }
+
+      pet.setId(rs.getLong("id"));
+      pet.setName(name);
+      pet.setBirthDate(LocalDate.parse(rs.getDate("birth_date").toString()));
+      pet.setType(getType(rs.getLong("type_id")));
+      long ownerId = rs.getLong("owner_id");
+      if (ownerId != 0) {
+        pet.setOwner(getOwner(ownerId));
+      }
+
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
+    }
+    return pet;
+
+  }
+
+  @Transactional
+  public void addPetToOwner(long ownerId, Pet pet) throws SQLException, NotFoundException {
+    String query = "UPDATE pets SET owner_id=? WHERE id=?";
+    System.out.println("------------------------------------");
+    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setLong(1, ownerId);
+      Pet petCaughtByName = getPetByName(pet.getName());
+      pet.setId(petCaughtByName.getId());
+      stmt.setLong(2, petCaughtByName.getId());
+      int affected_rows = stmt.executeUpdate();
+      if (affected_rows == 0) {
+        throw new NotFoundException("Owner or Pet not found");
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException(e.getMessage());
+    } catch (NotFoundException e) {
+      e.printStackTrace();
+      throw new NotFoundException(e.getMessage());
     }
   }
 

@@ -116,8 +116,18 @@ public class Endpoint {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response addPetToOwner(@PathParam("ownerId") long ownerId, Pet pet) {
-    databaseService.addPetToOwner(ownerId, pet.getName(), pet.getBirthDate().toString(), pet.getType().getId());
-    return Response.status(Response.Status.CREATED).entity(pet).build();
+    try {
+
+      databaseService.addPetToOwner(ownerId, pet);
+      pet.setOwner(databaseService.getOwner(ownerId));
+
+      return Response.ok(pet).build();
+
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   // List pets (GET /pets)
