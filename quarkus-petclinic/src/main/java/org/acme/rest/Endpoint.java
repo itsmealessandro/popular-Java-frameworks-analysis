@@ -153,7 +153,7 @@ public class Endpoint {
   public Response addPet(Pet pet) {
     try {
 
-      System.out.println(pet.getType() + ": is the typer from request in Endpoint");
+      System.out.println(pet.getType().toString() + ": is type with his id inside the <>");
       databaseService.addPet(pet);
       return Response.status(Response.Status.CREATED).entity(pet).build();
 

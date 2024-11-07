@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 
 @Entity
 public class Type extends PanacheEntity {
-  private long id;
   public String name;
 
   public void setName(String name) {

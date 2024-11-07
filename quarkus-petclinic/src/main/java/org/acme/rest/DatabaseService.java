@@ -271,25 +271,28 @@ public class DatabaseService {
     String query = "INSERT INTO pets (name, birth_date,type_id) VALUES (?,?,?)";
 
     Type type_from_request = pet.getType();
-    System.out.println(type_from_request + ": is the typer from request in DatabaseService");
+    System.out.println(type_from_request.getId() + ": TYPE ID");
+
     Type type = getType(type_from_request.getId());
-    if (type == null || type.getName() != type_from_request.getName()) {
-      System.out.println("bad request" + "\n" + type);
+    System.out.println(type);
+    System.out.println(type_from_request.getName() + " == " + type.getName() + "?");
+    if (type == null || !type.getName().equals(type_from_request.getName())) {
+      System.out.println("bad request" + "\n" + type.toString());
       throw new BadRequestException();
     }
+    System.out.println("check passed");
     try (Connection conn = dataSource.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
       stmt.setString(1, pet.getName());
       stmt.setDate(2, Date.valueOf(pet.getBirthDate()));
       stmt.setLong(3, pet.getType().getId());
+      stmt.executeUpdate();
       try (ResultSet keys = stmt.getGeneratedKeys()) {
         if (!keys.next()) {
           throw new SQLException("No key");
         }
         Long key = keys.getLong(1);
         pet.setId(key.intValue());
-
-        stmt.executeUpdate();
 
       }
 
@@ -420,6 +423,7 @@ public class DatabaseService {
    * @param id
    * @return Type if found, null if not found
    */
+  @Transactional
   public Type getType(long id) {
 
     Type type = new Type();
@@ -428,11 +432,15 @@ public class DatabaseService {
 
     try (Connection connection = dataSource.getConnection();
         PreparedStatement stmt = connection.prepareStatement(query)) {
-      System.out.println(id);
       stmt.setLong(1, id);
       ResultSet rs = stmt.executeQuery();
-      if (!rs.next())
+      if (!rs.next()) {
+        System.out.println("type not found from query where id:" + id);
         return null;
+      } else {
+        System.out.println("type found:" + rs.getString("name"));
+      }
+
       type.setId(id);
       type.setName(rs.getString("name"));
 
