@@ -9,6 +9,7 @@ import jakarta.persistence.MapsId;
 @Entity
 public class VetSpecialty extends PanacheEntityBase {
 
+  // WARNING: IDK WHY IT WORKS
   @EmbeddedId
   private VetSpecialtyId id;
 

@@ -5,20 +5,20 @@ import jakarta.persistence.Entity;
 
 @Entity
 public class Owner extends PanacheEntity {
-  public Integer getId() {
-    return id;
-  }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  private Integer id;
   public String firstName;
   public String lastName;
   public String address;
   public String city;
   public String telephone;
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
 
   public String getFirstName() {
     return firstName;

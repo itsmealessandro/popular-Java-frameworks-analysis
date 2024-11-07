@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 @Entity
 public class Visit extends PanacheEntity {
-  private Integer id;
   private LocalDate date;
   private String description;
 
@@ -38,11 +37,11 @@ public class Visit extends PanacheEntity {
     this.pet = pet;
   }
 
-  public Integer getId() {
+  public long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(long id) {
     this.id = id;
   }
 }
