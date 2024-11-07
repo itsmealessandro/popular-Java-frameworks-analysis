@@ -15,6 +15,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class DatabaseService {
@@ -217,6 +218,33 @@ public class DatabaseService {
 
   // PET methods
   // ----------------------------------------------------------------------------------------------
+
+  @Transactional
+  public Pet getPet(int petId) throws NotFoundException {
+    String query = "SELECT * FROM pets WHERE id = ?";
+    Pet pet = null;
+    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setInt(1, petId);
+      ResultSet rs = stmt.executeQuery();
+      if (rs.next()) {
+        pet = new Pet();
+        pet.setId(rs.getInt("id"));
+        pet.setName(rs.getString("name"));
+        pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
+        // TODO: references Owner
+        Type type = getType(rs.getInt("type_id"));
+        if (type == null)
+          throw new NotFoundException("type not found");
+        pet.setOwner(getOwner(rs.getInt("owner_id")));
+
+        pet.setType(type);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return pet;
+  }
+
   @Transactional
   public List<Pet> listPets() {
     String query = "SELECT * FROM pets";
@@ -236,25 +264,6 @@ public class DatabaseService {
       e.printStackTrace();
     }
     return pets;
-  }
-
-  @Transactional
-  public Pet getPet(int petId) {
-    String query = "SELECT * FROM pets WHERE id = ?";
-    Pet pet = null;
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setInt(1, petId);
-      ResultSet rs = stmt.executeQuery();
-      if (rs.next()) {
-        pet = new Pet();
-        pet.setId(rs.getInt("id"));
-        pet.setName(rs.getString("name"));
-        pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-    return pet;
   }
 
   @Transactional
@@ -389,6 +398,33 @@ public class DatabaseService {
 
   // Types Methods
   // -----------------------------------------------------------------------------------------------
+
+  /**
+   * @param id
+   * @return Type if found, null if not found
+   */
+  @Transactional
+  public Type getType(int id) {
+    Type type = new Type();
+
+    String query = "SELECT * FROM types WHERE id=?";
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(query)) {
+      stmt.setInt(1, id);
+      ResultSet rs = stmt.executeQuery();
+      if (!rs.next())
+        return null;
+      type.setId(id);
+      type.setName(rs.getString("name"));
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return type;
+
+  }
+
   @Transactional
   public void addPetType(String typeName) {
     String query = "INSERT INTO types (name) VALUES (?)";

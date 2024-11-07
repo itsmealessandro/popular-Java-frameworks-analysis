@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -129,11 +130,18 @@ public class Endpoint {
   @Path("/pets/{petId}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response getPet(@PathParam("petId") int petId) {
-    Pet pet = databaseService.getPet(petId);
-    if (pet == null) {
-      return Response.status(Response.Status.NOT_FOUND).build();
+    try {
+
+      Pet pet = databaseService.getPet(petId);
+      if (pet == null) {
+        return Response.status(Response.Status.NOT_FOUND).build();
+      }
+      return Response.ok(pet).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+
     }
-    return Response.ok(pet).build();
+
   }
 
   @POST
