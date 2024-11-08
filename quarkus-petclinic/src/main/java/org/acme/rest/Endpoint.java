@@ -50,7 +50,7 @@ public class Endpoint {
   // ----------------------------------------------------------------
 
   /**
-   * Get a pet owner by ID (GET /owners/{ownerId})
+   * Get a owner by ID (GET /owners/{ownerId})
    * 
    * @param ownerId
    * @return
@@ -71,22 +71,28 @@ public class Endpoint {
     }
   }
 
-  // Add a pet owner (POST /owners)
-  @GET
-  @Path("/owners")
-  @Produces(MediaType.APPLICATION_JSON)
-  public List<Owner> listOwners(@QueryParam("lastName") String lastName) {
-    return databaseService.listOwners(lastName != null ? lastName : "");
-  }
-
   @POST
   @Path("/owners")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response addOwner(Owner owner) {
-    databaseService.addOwner(owner.getFirstName(), owner.getLastName(), owner.getAddress(), owner.getCity(),
-        owner.getTelephone());
-    return Response.status(Response.Status.CREATED).entity(owner).build();
+    try {
+      databaseService.addOwner(owner);
+
+      return Response.status(Response.Status.CREATED).entity(owner).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (IllegalArgumentException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+  }
+
+  // list owners
+  @GET
+  @Path("/owners")
+  @Produces(MediaType.APPLICATION_JSON)
+  public List<Owner> listOwners(@QueryParam("lastName") String lastName) {
+    return databaseService.listOwners(lastName != null ? lastName : "");
   }
 
   // Update a pet owner (PUT /owners/{ownerId})

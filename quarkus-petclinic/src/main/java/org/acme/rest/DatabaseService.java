@@ -146,18 +146,55 @@ public class DatabaseService {
     return owner;
   }
 
+  /*
+   *
+   * try (Connection conn = dataSource.getConnection();
+   * PreparedStatement stmt = conn.prepareStatement(query,
+   * Statement.RETURN_GENERATED_KEYS)) {
+   * stmt.setString(1, pet.getName());
+   * stmt.setDate(2, Date.valueOf(pet.getBirthDate()));
+   * stmt.setLong(3, pet.getType().getId());
+   * stmt.executeUpdate();
+   * try (ResultSet keys = stmt.getGeneratedKeys()) {
+   * if (!keys.next()) {
+   * throw new SQLException("No key");
+   * }
+   * Long key = keys.getLong(1);
+   * pet.setId(key.intValue());
+   * 
+   * }
+   * 
+   * } catch (SQLException e) {
+   * e.printStackTrace();
+   * }
+   */
   @Transactional
-  public void addOwner(String firstName, String lastName, String address, String city, String telephone) {
+  public void addOwner(Owner owner) throws SQLException, IllegalArgumentException {
     String query = "INSERT INTO owners (first_name, last_name, address, city, telephone) VALUES (?, ?, ?, ?, ?)";
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setString(1, firstName);
-      stmt.setString(2, lastName);
-      stmt.setString(3, address);
-      stmt.setString(4, city);
-      stmt.setString(5, telephone);
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+      if (owner.getFirstName() == null || owner.getFirstName().isEmpty() ||
+          owner.getLastName() == null || owner.getLastName().isEmpty() ||
+          owner.getAddress() == null || owner.getAddress().isEmpty() ||
+          owner.getCity() == null || owner.getCity().isEmpty() ||
+          owner.getTelephone() == null || owner.getTelephone().isEmpty()) {
+
+        throw new IllegalArgumentException("All fields of the owner must be filled.");
+      }
+      stmt.setString(1, owner.getFirstName());
+      stmt.setString(2, owner.getLastName());
+      stmt.setString(3, owner.getAddress());
+      stmt.setString(4, owner.getCity());
+      stmt.setString(5, owner.getTelephone());
       stmt.executeUpdate();
+
+      try (ResultSet rs_keys = stmt.getGeneratedKeys()) {
+        rs_keys.next();
+        owner.setId(rs_keys.getLong(1));
+      }
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
   }
 
