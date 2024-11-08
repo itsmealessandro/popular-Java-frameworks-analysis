@@ -266,14 +266,36 @@ public class DatabaseService {
     }
   }
 
-  @Transactional
-  public void deleteOwner(int ownerId) {
+  /**
+   * Delete the owner with that id
+   * 
+   * @param ownerId
+   * @return the owner deleted, null if has a relation
+   * @throws NotFoundException
+   * @throws SQLException
+   */
+  public Owner deleteOwner(int ownerId) throws NotFoundException, SQLException, ObjectReferenceException {
+
+    Owner owner = getOwner(ownerId);
+    if (owner == null) {
+      throw new NotFoundException("Owner not found");
+    }
+
     String query = "DELETE FROM owners WHERE id = ?";
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
       stmt.setInt(1, ownerId);
       stmt.executeUpdate();
+
+      return owner;
     } catch (SQLException e) {
       e.printStackTrace();
+      if (e.getSQLState().equals("23503")) {
+        throw new ObjectReferenceException();
+
+      }
+
+      throw new SQLException();
+
     }
   }
 

@@ -94,6 +94,13 @@ public class Endpoint {
   }
 
   // Update a pet owner (PUT /owners/{ownerId})
+  /**
+   * update owners details
+   * 
+   * @param ownerId
+   * @param owner
+   * @return the Owner
+   */
   @PUT
   @Path("/owners/{ownerId}")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -113,32 +120,38 @@ public class Endpoint {
     }
   }
 
-  // list owners
-  @GET
-  @Path("/owners")
-  @Produces(MediaType.APPLICATION_JSON)
-  public List<Owner> listOwners(@QueryParam("lastName") String lastName) {
-    return databaseService.listOwners(lastName != null ? lastName : "");
-  }
-
-  // Delete owner (DELETE /owners/{ownerId})
+  /**
+   * Delete owner (DELETE /owners/{ownerId})
+   * 
+   * @param ownerId
+   * @return the deleted owner
+   */
   @DELETE
   @Path("/owners/{ownerId}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteOwner(@PathParam("ownerId") int ownerId) {
     try {
 
-      Owner owner = databaseService.getOwner(ownerId);
+      Owner owner = databaseService.deleteOwner(ownerId);
       if (owner == null) {
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.status(Response.Status.BAD_REQUEST).build();
       }
-
-      databaseService.deleteOwner(ownerId);
       return Response.noContent().build();
-    } catch (Exception e) {
-      // TODO: handle exception
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (SQLException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (ObjectReferenceException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
     }
+  }
+
+  // list owners
+  @GET
+  @Path("/owners")
+  @Produces(MediaType.APPLICATION_JSON)
+  public List<Owner> listOwners(@QueryParam("lastName") String lastName) {
+    return databaseService.listOwners(lastName != null ? lastName : "");
   }
 
   // List pets (GET /pets)
