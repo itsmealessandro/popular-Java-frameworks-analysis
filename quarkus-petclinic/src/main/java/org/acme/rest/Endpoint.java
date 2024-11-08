@@ -71,6 +71,12 @@ public class Endpoint {
     }
   }
 
+  /**
+   * Adds a new <code>Owner</code>
+   * 
+   * @param owner
+   * @return the Owner
+   */
   @POST
   @Path("/owners")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -87,33 +93,32 @@ public class Endpoint {
     }
   }
 
+  // Update a pet owner (PUT /owners/{ownerId})
+  @PUT
+  @Path("/owners/{ownerId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response updateOwner(@PathParam("ownerId") long ownerId, Owner owner) {
+    try {
+      databaseService.updateOwner(ownerId, owner);
+
+      return Response.ok(owner).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (IllegalArgumentException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+
+    }
+  }
+
   // list owners
   @GET
   @Path("/owners")
   @Produces(MediaType.APPLICATION_JSON)
   public List<Owner> listOwners(@QueryParam("lastName") String lastName) {
     return databaseService.listOwners(lastName != null ? lastName : "");
-  }
-
-  // Update a pet owner (PUT /owners/{ownerId})
-  @PUT
-  @Path("/owners/{ownerId}")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response updateOwner(@PathParam("ownerId") int ownerId, Owner updatedOwner) {
-    try {
-
-      Owner existingOwner = databaseService.getOwner(ownerId);
-      if (existingOwner == null) {
-        return Response.status(Response.Status.NOT_FOUND).build();
-      }
-
-      databaseService.updateOwner(ownerId, updatedOwner.getFirstName(), updatedOwner.getLastName(),
-          updatedOwner.getAddress(), updatedOwner.getCity(), updatedOwner.getTelephone());
-      return Response.ok(updatedOwner).build();
-    } catch (SQLException e) {
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-    }
   }
 
   // Delete owner (DELETE /owners/{ownerId})

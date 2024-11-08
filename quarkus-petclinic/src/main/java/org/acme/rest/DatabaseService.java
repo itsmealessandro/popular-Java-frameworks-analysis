@@ -221,20 +221,48 @@ public class DatabaseService {
     return owners;
   }
 
-  @Transactional
-  public void updateOwner(int ownerId, String firstName, String lastName, String address, String city,
-      String telephone) {
+  /**
+   * update Owner details
+   * 
+   * @param ownerId
+   * @param owner
+   * @return the owners with the id
+   * @throws SQLException
+   * @throws NotFoundException
+   * @throws IllegalArgumentException
+   */
+  public Owner updateOwner(long ownerId, Owner owner) throws SQLException, NotFoundException, IllegalArgumentException {
+
     String query = "UPDATE owners SET first_name = ?, last_name = ?, address = ?, city = ?, telephone = ? WHERE id = ?";
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setString(1, firstName);
-      stmt.setString(2, lastName);
-      stmt.setString(3, address);
-      stmt.setString(4, city);
-      stmt.setString(5, telephone);
-      stmt.setInt(6, ownerId);
+
+      if (getOwner(ownerId) == null) {
+        throw new NotFoundException();
+      }
+
+      if (owner.getFirstName() == null || owner.getFirstName().isEmpty() ||
+          owner.getLastName() == null || owner.getLastName().isEmpty() ||
+          owner.getAddress() == null || owner.getAddress().isEmpty() ||
+          owner.getCity() == null || owner.getCity().isEmpty() ||
+          owner.getTelephone() == null || owner.getTelephone().isEmpty()) {
+
+        throw new IllegalArgumentException("All fields of the owner must be filled.");
+      }
+
+      stmt.setString(1, owner.getFirstName());
+      stmt.setString(2, owner.getLastName());
+      stmt.setString(3, owner.getAddress());
+      stmt.setString(4, owner.getCity());
+      stmt.setString(5, owner.getTelephone());
+      stmt.setLong(6, ownerId);
       stmt.executeUpdate();
+
+      owner.setId(ownerId);
+      return owner;
+
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
   }
 
@@ -403,6 +431,11 @@ public class DatabaseService {
   }
 
   public void updatePet(long petId, Pet pet) throws NotFoundException, SQLException {
+    if (getPet(petId) == null) {
+      throw new NotFoundException();
+
+    }
+
     String query = "UPDATE pets SET name = ?, birth_date = ?, type_id = ? WHERE id = ?";
     try (Connection connection = dataSource.getConnection();
         PreparedStatement stmt = connection.prepareStatement(query)) {
