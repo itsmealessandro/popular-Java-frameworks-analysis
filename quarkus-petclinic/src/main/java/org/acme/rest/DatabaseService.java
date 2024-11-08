@@ -114,11 +114,16 @@ public class DatabaseService {
     return result.toString();
   }
 
-  // Owner methods
+  // NOTE: Owner methods
   // ---------------------------------------------------------------------------------------
 
+  /**
+   * @param ownerId
+   * @return owner with that id if exits or null if it doesn't
+   * @throws SQLException
+   */
   @Transactional
-  public Owner getOwner(long ownerId) {
+  public Owner getOwner(long ownerId) throws SQLException {
     String query = "SELECT * FROM owners WHERE id = ?";
     Owner owner = new Owner();
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -134,6 +139,7 @@ public class DatabaseService {
 
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
     return owner;
   }

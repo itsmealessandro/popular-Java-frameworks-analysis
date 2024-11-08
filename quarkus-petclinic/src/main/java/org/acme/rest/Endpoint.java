@@ -18,8 +18,6 @@ import jakarta.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.acme.utility.UtilityMaps;
-
 @Path("petclinic/api")
 public class Endpoint {
 
@@ -46,26 +44,39 @@ public class Endpoint {
     return "jakarta and quarkus from path /hello";
   }
 
-  // ---------------------------------------------- pet clinic methods
-  // Add a pet owner (POST /owners)
+  // ---------------------------------------------- NOTE: pet clinic methods
+  // ----------------------------------------------------------------
+  // ----------------------------------------------------------------
+  // ----------------------------------------------------------------
 
+  /**
+   * Get a pet owner by ID (GET /owners/{ownerId})
+   * 
+   * @param ownerId
+   * @return
+   */
+  @GET
+  @Path("/owners/{ownerId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getOwner(@PathParam("ownerId") int ownerId) {
+    try {
+
+      Owner owner = databaseService.getOwner(ownerId);
+      if (owner == null) {
+        return Response.status(Response.Status.NOT_FOUND).build();
+      }
+      return Response.ok(owner).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  // Add a pet owner (POST /owners)
   @GET
   @Path("/owners")
   @Produces(MediaType.APPLICATION_JSON)
   public List<Owner> listOwners(@QueryParam("lastName") String lastName) {
     return databaseService.listOwners(lastName != null ? lastName : "");
-  }
-
-  // Get a pet owner by ID (GET /owners/{ownerId})
-  @GET
-  @Path("/owners/{ownerId}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getOwner(@PathParam("ownerId") int ownerId) {
-    Owner owner = databaseService.getOwner(ownerId);
-    if (owner == null) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
-    return Response.ok(owner).build();
   }
 
   @POST
@@ -84,28 +95,39 @@ public class Endpoint {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response updateOwner(@PathParam("ownerId") int ownerId, Owner updatedOwner) {
-    Owner existingOwner = databaseService.getOwner(ownerId);
-    if (existingOwner == null) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
+    try {
 
-    databaseService.updateOwner(ownerId, updatedOwner.getFirstName(), updatedOwner.getLastName(),
-        updatedOwner.getAddress(), updatedOwner.getCity(), updatedOwner.getTelephone());
-    return Response.ok(updatedOwner).build();
+      Owner existingOwner = databaseService.getOwner(ownerId);
+      if (existingOwner == null) {
+        return Response.status(Response.Status.NOT_FOUND).build();
+      }
+
+      databaseService.updateOwner(ownerId, updatedOwner.getFirstName(), updatedOwner.getLastName(),
+          updatedOwner.getAddress(), updatedOwner.getCity(), updatedOwner.getTelephone());
+      return Response.ok(updatedOwner).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
-  // Delete a pet owner (DELETE /owners/{ownerId})
+  // Delete owner (DELETE /owners/{ownerId})
   @DELETE
   @Path("/owners/{ownerId}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteOwner(@PathParam("ownerId") int ownerId) {
-    Owner owner = databaseService.getOwner(ownerId);
-    if (owner == null) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
+    try {
 
-    databaseService.deleteOwner(ownerId);
-    return Response.noContent().build();
+      Owner owner = databaseService.getOwner(ownerId);
+      if (owner == null) {
+        return Response.status(Response.Status.NOT_FOUND).build();
+      }
+
+      databaseService.deleteOwner(ownerId);
+      return Response.noContent().build();
+    } catch (Exception e) {
+      // TODO: handle exception
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   // List pets (GET /pets)
