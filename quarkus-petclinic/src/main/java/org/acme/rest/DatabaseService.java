@@ -126,11 +126,13 @@ public class DatabaseService {
   public Owner getOwner(long ownerId) throws SQLException {
     String query = "SELECT * FROM owners WHERE id = ?";
     Owner owner = new Owner();
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
       stmt.setLong(1, ownerId);
       ResultSet rs = stmt.executeQuery();
-      if (!rs.next())
+      if (!rs.next()) {
         return null;
+      }
       owner.setId(rs.getInt("id"));
       owner.setFirstName(rs.getString("first_name"));
       owner.setLastName(rs.getString("last_name"));
