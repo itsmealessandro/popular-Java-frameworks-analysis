@@ -24,18 +24,13 @@ public class Endpoint {
   @Inject
   DatabaseService databaseService;
 
+  /**
+   * @return all the instances of all the tables in the DB
+   */
   @GET
   @Produces(MediaType.TEXT_PLAIN)
   public String hello() {
-
     return databaseService.getAllInstances();
-    /*
-     * return "DB name: " + databaseService.getDatabaseName() + "---------" +
-     * "First Pet Name: "
-     * + databaseService.listTables() + "-----" + "pets: " +
-     * databaseService.getAllPets() + "\n"
-     * + "go check dev ui: http://localhost:8080/q/dev-ui/";
-     */
   }
 
   @GET
@@ -49,6 +44,7 @@ public class Endpoint {
   // ----------------------------------------------------------------
   // ----------------------------------------------------------------
 
+  // NOTE: Owner methods #######################################
   /**
    * Get a owner by ID (GET /owners/{ownerId})
    * 
@@ -93,7 +89,7 @@ public class Endpoint {
     }
   }
 
-  // Update a pet owner (PUT /owners/{ownerId})
+  // Update a owner (PUT /owners/{ownerId})
   /**
    * update owners details
    * 
@@ -168,7 +164,14 @@ public class Endpoint {
     }
   }
 
-  // Get a pet by ID (GET /pets/{petId})
+  // NOTE: Pet methods #######################################
+
+  /**
+   * // Get a pet by ID (GET /pets/{petId})
+   * 
+   * @param petId
+   * @return
+   */
   @GET
   @Path("/pets/{petId}")
   @Produces(MediaType.APPLICATION_JSON)
@@ -185,6 +188,8 @@ public class Endpoint {
   }
 
   /**
+   * Adds a new pet
+   * 
    * @param pet
    * @return the created Pet
    */
@@ -207,6 +212,13 @@ public class Endpoint {
 
   }
 
+  /**
+   * Update a Pet
+   * 
+   * @param petId
+   * @param pet
+   * @return the updated Pet
+   */
   @PUT
   @Path("/pets/{petId}")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -226,6 +238,12 @@ public class Endpoint {
     }
   }
 
+  /**
+   * Delete the pet with that id
+   * 
+   * @param petId
+   * @return
+   */
   @DELETE
   @Path("/pets/{petId}")
   @Produces(MediaType.APPLICATION_JSON)
@@ -242,7 +260,13 @@ public class Endpoint {
     }
   }
 
-  // Add a pet to an owner (POST /owners/{ownerId}/pets)
+  /**
+   * // Add a pet to an owner (PUT /owners/{ownerId}/pets)
+   * 
+   * @param ownerId
+   * @param pet
+   * @return
+   */
   @PUT
   @Path("/owners/{ownerId}/pets")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -262,14 +286,21 @@ public class Endpoint {
     }
   }
 
+  /**
+   * Get the Pet with that petId associated with the owner with that ownerId
+   * 
+   * @param ownerId
+   * @param petId
+   * @return
+   */
   @GET
   @Path("/owners/{ownerId}/pets/{petId}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response checkOwnerPet(@PathParam("ownerId") long ownerId, @PathParam("petId") long petId) {
+  public Response getOwnerPet(@PathParam("ownerId") long ownerId, @PathParam("petId") long petId) {
 
     try {
-      Pet pet = databaseService.checkOwnerPet(ownerId, petId);
+      Pet pet = databaseService.getOwnerPet(ownerId, petId);
       return Response.ok(pet).build();
     } catch (NotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).build();
@@ -277,6 +308,8 @@ public class Endpoint {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
   }
+
+  // NOTE: vets methods ##################################################
 
   // Add a vet (POST /vets)
   @POST
