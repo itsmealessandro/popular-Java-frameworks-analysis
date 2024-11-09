@@ -377,6 +377,7 @@ public class DatabaseService {
    * @throws NotFoundException
    */
   public Pet getPet(long petId) throws NotFoundException {
+    Set<Visit> visits = new HashSet<>();
     String query = "SELECT * FROM pets WHERE id = ?";
     Pet pet = null;
     try (Connection conn = dataSource.getConnection();
@@ -390,7 +391,9 @@ public class DatabaseService {
       pet.setId(rs.getInt("id"));
       pet.setName(rs.getString("name"));
       pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
+      // set references
       pet.setOwnerId(rs.getLong("owner_id"));
+      pet.setVisits(visits);
 
       pet.setType(getType(rs.getInt("type_id")));
     } catch (SQLException e) {
