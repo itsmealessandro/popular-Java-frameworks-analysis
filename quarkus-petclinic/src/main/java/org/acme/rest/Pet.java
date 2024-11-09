@@ -2,6 +2,7 @@ package org.acme.rest;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 
@@ -14,7 +15,11 @@ public class Pet extends PanacheEntity {
   private Type type;
 
   @ManyToOne
+  @JoinColumn(name = "owner_id")
   private Owner owner;
+
+  // NOTE: this is a trick to simulate the JSON result of the spring petclinic
+  private long ownerId;
 
   public long getId() {
     return id;
@@ -54,5 +59,13 @@ public class Pet extends PanacheEntity {
 
   public void setOwner(Owner owner) {
     this.owner = owner;
+  }
+
+  public long getOwnerId() {
+    return ownerId;
+  }
+
+  public void setOwnerId(long ownerId) {
+    this.ownerId = ownerId;
   }
 }

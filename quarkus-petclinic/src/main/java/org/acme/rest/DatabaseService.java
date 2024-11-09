@@ -11,7 +11,10 @@ import java.time.LocalDate;
 import javax.sql.DataSource;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -122,12 +125,15 @@ public class DatabaseService {
    * @return owner with that id if exits or null if it doesn't
    * @throws SQLException
    */
-  @Transactional
   public Owner getOwner(long ownerId) throws SQLException {
     String query = "SELECT * FROM owners WHERE id = ?";
+    String query_pets = "SELECT id FROM pets WHERE id = ? ";
+    Set<Pet> pets = new HashSet<>();
     Owner owner = new Owner();
     try (Connection conn = dataSource.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query)) {
+        PreparedStatement stmt = conn.prepareStatement(query);
+        PreparedStatement stmt_pets = conn.prepareStatement(query_pets)) {
+
       stmt.setLong(1, ownerId);
       ResultSet rs = stmt.executeQuery();
       if (!rs.next()) {
@@ -138,6 +144,15 @@ public class DatabaseService {
       owner.setLastName(rs.getString("last_name"));
       owner.setCity(rs.getString("city"));
       owner.setTelephone(rs.getString("telephone"));
+
+      // we set his pets
+      stmt_pets.setLong(1, ownerId);
+      ResultSet rs_pets = stmt_pets.executeQuery();
+      while (rs_pets.next()) {
+        pets.add(getPet(rs_pets.getLong("id")));
+      }
+
+      owner.setPets(pets);
 
     } catch (SQLException e) {
       e.printStackTrace();
@@ -375,7 +390,7 @@ public class DatabaseService {
       pet.setId(rs.getInt("id"));
       pet.setName(rs.getString("name"));
       pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
-      pet.setOwner(getOwner(rs.getInt("owner_id")));
+      pet.setOwnerId(rs.getLong("owner_id"));
 
       pet.setType(getType(rs.getInt("type_id")));
     } catch (SQLException e) {
