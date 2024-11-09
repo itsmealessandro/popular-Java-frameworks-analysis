@@ -378,10 +378,12 @@ public class DatabaseService {
    */
   public Pet getPet(long petId) throws NotFoundException {
     Set<Visit> visits = new HashSet<>();
+    String query_visits = "SELECT id FROM visits WHERE pet_id = ?";
     String query = "SELECT * FROM pets WHERE id = ?";
     Pet pet = null;
     try (Connection conn = dataSource.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query)) {
+        PreparedStatement stmt = conn.prepareStatement(query);
+        PreparedStatement stmt_visits = conn.prepareStatement(query_visits)) {
       stmt.setLong(1, petId);
       ResultSet rs = stmt.executeQuery();
       if (!rs.next()) {
@@ -393,6 +395,14 @@ public class DatabaseService {
       pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
       // set references
       pet.setOwnerId(rs.getLong("owner_id"));
+
+      stmt_visits.setLong(1, petId);
+      ResultSet rs_visits = stmt_visits.executeQuery();
+      while (rs_visits.next()) {
+
+        visits.add(getVisit(rs.getLong("id")));
+      }
+
       pet.setVisits(visits);
 
       pet.setType(getType(rs.getInt("type_id")));
@@ -716,6 +726,36 @@ public class DatabaseService {
       throw new NotFoundException("Not that owner's pet");
     }
     return pet;
+
+  }
+
+  /**
+   * get the visit from id
+   * 
+   * @param id
+   * @return the visit or null if not exists
+   * @throws SQLException
+   */
+  public Visit getVisit(long id) throws SQLException {
+    String query = "SELECT * FROM visits WHERE id=?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+      preparedStatement.setLong(1, id);
+      ResultSet rs = preparedStatement.executeQuery();
+      if (!rs.next()) {
+        return null;
+      }
+
+      Visit visit = new Visit();
+      visit.setId(id);
+      visit.setDate(LocalDate.parse(rs.getDate("visit_date").toString()));
+      visit.setPetId(rs.getLong("pet_id"));
+      return visit;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
 
   }
 }

@@ -13,6 +13,9 @@ public class Visit extends PanacheEntity {
   @ManyToOne
   private Pet pet;
 
+  // NOTE: the same trick for owner on pet
+  private long petId;
+
   public LocalDate getDate() {
     return date;
   }
@@ -44,4 +47,13 @@ public class Visit extends PanacheEntity {
   public void setId(long id) {
     this.id = id;
   }
+
+  public long getPetId() {
+    return petId;
+  }
+
+  public void setPetId(long petId) {
+    this.petId = petId;
+  }
+
 }
