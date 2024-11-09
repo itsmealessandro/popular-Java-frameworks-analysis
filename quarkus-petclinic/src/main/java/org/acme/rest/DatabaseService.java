@@ -199,11 +199,11 @@ public class DatabaseService {
   }
 
   @Transactional
-  public List<Owner> listOwners(String lastName) {
-    String query = "SELECT * FROM owners WHERE last_name LIKE ?";
+  public List<Owner> listOwners() throws SQLException {
+    String query = "SELECT * FROM owners";
     List<Owner> owners = new ArrayList<>();
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setString(1, "%" + lastName + "%");
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
       ResultSet rs = stmt.executeQuery();
       while (rs.next()) {
         Owner owner = new Owner();
@@ -211,14 +211,16 @@ public class DatabaseService {
         owner.setFirstName(rs.getString("first_name"));
         owner.setLastName(rs.getString("last_name"));
         owner.setCity(rs.getString("city"));
+        owner.setAddress(rs.getString("address"));
         owner.setTelephone(rs.getString("telephone"));
 
         owners.add(owner);
       }
+      return owners;
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
-    return owners;
   }
 
   /**
@@ -688,7 +690,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws NotFoundException
    */
-  public Pet checkOwnerPet(long ownerId, long petId) throws SQLException, NotFoundException {
+  public Pet getOwnerPet(long ownerId, long petId) throws SQLException, NotFoundException {
 
     Pet pet = getPet(petId);
     Owner owner = getOwner(ownerId);

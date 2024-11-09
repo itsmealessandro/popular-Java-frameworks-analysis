@@ -146,8 +146,15 @@ public class Endpoint {
   @GET
   @Path("/owners")
   @Produces(MediaType.APPLICATION_JSON)
-  public List<Owner> listOwners(@QueryParam("lastName") String lastName) {
-    return databaseService.listOwners(lastName != null ? lastName : "");
+  public Response listOwners() {
+    try {
+      List<Owner> owners = databaseService.listOwners();
+      owners = databaseService.listOwners();
+      return Response.ok(owners).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+
   }
 
   // List pets (GET /pets)
