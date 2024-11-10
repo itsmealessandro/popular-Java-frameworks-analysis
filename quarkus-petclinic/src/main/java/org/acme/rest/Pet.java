@@ -16,6 +16,8 @@ public class Pet extends PanacheEntity {
   private String name;
   private LocalDate birthDate;
 
+  private long ownerId;
+
   @ManyToOne
   private Type type;
 
@@ -23,9 +25,6 @@ public class Pet extends PanacheEntity {
   @JoinColumn(name = "owner_id")
   @JsonIgnore
   private Owner owner;
-
-  // NOTE: this is a trick to simulate the JSON result of the spring petclinic
-  private long ownerId;
 
   @OneToMany
   private Set<Visit> visits;

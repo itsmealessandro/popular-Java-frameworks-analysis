@@ -61,6 +61,7 @@ public class Endpoint {
       if (owner == null) {
         return Response.status(Response.Status.NOT_FOUND).build();
       }
+      System.out.println(owner);
       return Response.ok(owner).build();
     } catch (SQLException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -166,6 +167,11 @@ public class Endpoint {
   // NOTE: Pet methods #######################################
 
   // List pets (GET /pets)
+  /**
+   * get the list of all pets
+   * 
+   * @return
+   */
   @GET
   @Path("/pets")
   @Produces(MediaType.APPLICATION_JSON)
@@ -191,6 +197,7 @@ public class Endpoint {
   public Response getPet(@PathParam("petId") int petId) {
 
     Pet pet = databaseService.getPet(petId);
+    System.out.println(pet);
     if (pet == null) {
       return Response.status(Response.Status.NOT_FOUND).build();
     }

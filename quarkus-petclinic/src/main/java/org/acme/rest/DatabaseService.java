@@ -429,7 +429,13 @@ public class DatabaseService {
       pet.setName(rs.getString("name"));
       pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
       // set references
-      pet.setOwnerId(rs.getLong("owner_id"));
+      System.out.println("#################");
+      System.out.println(rs.getLong("owner_id"));
+      // BUG: For some reason it does not set it, at lean not shown in JSON result
+      long ownerIdReference = rs.getLong("owner_id");
+      if (ownerIdReference != 0) {
+        pet.setOwnerId(ownerIdReference);
+      }
 
       stmt_visits.setLong(1, petId);
       ResultSet rs_visits = stmt_visits.executeQuery();
@@ -447,27 +453,14 @@ public class DatabaseService {
     return pet;
   }
 
-  @Transactional
   public List<Pet> listPets() throws SQLException {
-    String query = "SELECT * FROM pets";
+    String query = "SELECT id FROM pets";
     List<Pet> pets = new ArrayList<>();
     try (Connection conn = dataSource.getConnection();
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
       while (rs.next()) {
-        Pet pet = new Pet();
-        pet.setId(rs.getInt("id"));
-        pet.setName(rs.getString("name"));
-        pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
-        long ownerId = rs.getLong("owner_id");
-        if (ownerId != 0) {
-          pet.setOwner(getOwner(ownerId));
-        }
-        long typeID = rs.getLong("type_id");
-        if (typeID == 0) {
-          throw new SQLException("type ID not found");
-        }
-        pet.setType(getType(typeID));
+        Pet pet = getPet(rs.getLong("id"));
         pets.add(pet);
       }
     } catch (SQLException e) {
