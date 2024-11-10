@@ -162,30 +162,18 @@ public class DatabaseService {
     return owner;
   }
 
-  /*
-   *
-   * try (Connection conn = dataSource.getConnection();
-   * PreparedStatement stmt = conn.prepareStatement(query,
-   * Statement.RETURN_GENERATED_KEYS)) {
-   * stmt.setString(1, pet.getName());
-   * stmt.setDate(2, Date.valueOf(pet.getBirthDate()));
-   * stmt.setLong(3, pet.getType().getId());
-   * stmt.executeUpdate();
-   * try (ResultSet keys = stmt.getGeneratedKeys()) {
-   * if (!keys.next()) {
-   * throw new SQLException("No key");
-   * }
-   * Long key = keys.getLong(1);
-   * pet.setId(key.intValue());
+  /**
+   * adds a new owner
    * 
-   * }
-   * 
-   * } catch (SQLException e) {
-   * e.printStackTrace();
-   * }
+   * @param owner
+   * @throws SQLException
+   * @throws IllegalArgumentException
    */
-  @Transactional
   public void addOwner(Owner owner) throws SQLException, IllegalArgumentException {
+
+    if (getOwnerByLastName(owner.getLastName()) != null) {
+      throw new IllegalArgumentException();
+    }
     String query = "INSERT INTO owners (first_name, last_name, address, city, telephone) VALUES (?, ?, ?, ?, ?)";
     try (Connection conn = dataSource.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
