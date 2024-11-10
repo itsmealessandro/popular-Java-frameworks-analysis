@@ -143,6 +143,7 @@ public class DatabaseService {
       owner.setFirstName(rs.getString("first_name"));
       owner.setLastName(rs.getString("last_name"));
       owner.setCity(rs.getString("city"));
+      owner.setAddress(rs.getString("address"));
       owner.setTelephone(rs.getString("telephone"));
 
       // we set his pets
@@ -213,25 +214,72 @@ public class DatabaseService {
     }
   }
 
-  @Transactional
-  public List<Owner> listOwners() throws SQLException {
-    String query = "SELECT * FROM owners";
-    List<Owner> owners = new ArrayList<>();
+  /**
+   * returns the Owner given the lastname
+   * 
+   * @param lastName
+   * @return
+   * @throws SQLException
+   */
+  private Owner getOwnerByLastName(String lastName) throws SQLException {
+    Owner owner = new Owner();
+    System.out.println("lastName::::::::" + lastName);
+    String query = "SELECT id FROM owners WHERE last_name LIKE ?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+      preparedStatement.setString(1, lastName);
+      ResultSet rs = preparedStatement.executeQuery();
+      if (!rs.next()) {
+        return null;
+      }
+      owner = getOwner(rs.getLong("id"));
+      return owner;
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+  }
+
+  /**
+   * Returns the owner with that lastname with his pet List
+   * 
+   * @param lastName
+   * @return Owner
+   * @throws SQLException
+   * @throws NotFoundException
+   */
+  public Owner listOwnerPets(String lastName) throws SQLException, NotFoundException {
+    System.out.println("#############################################");
+    System.out.println("listOwnerPets");
+    Owner owner = getOwnerByLastName(lastName);
+    if (owner == null) {
+      System.out.println("Owner::::" + owner);
+      throw new NotFoundException("Owner not found");
+    }
+    String query = "SELECT id FROM pets WHERE owner_id = ?";
     try (Connection conn = dataSource.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query)) {
-      ResultSet rs = stmt.executeQuery();
-      while (rs.next()) {
-        Owner owner = new Owner();
-        owner.setId(rs.getInt("id"));
-        owner.setFirstName(rs.getString("first_name"));
-        owner.setLastName(rs.getString("last_name"));
-        owner.setCity(rs.getString("city"));
-        owner.setAddress(rs.getString("address"));
-        owner.setTelephone(rs.getString("telephone"));
 
-        owners.add(owner);
+      System.out.println("#############################################");
+      System.out.println(owner.getId());
+      stmt.setLong(1, owner.getId());
+      ResultSet rs = stmt.executeQuery();
+      Set<Pet> pets = new HashSet<>();
+      int i = 0;
+      while (rs.next()) {
+
+        System.out.println("#################");
+        System.out.println("pet #" + i);
+        i++;
+        Pet pet = getPet(rs.getLong("id"));
+        pets.add(pet);
+
       }
-      return owners;
+
+      owner.setPets(pets);
+      return owner;
     } catch (SQLException e) {
       e.printStackTrace();
       throw new SQLException();
@@ -345,7 +393,6 @@ public class DatabaseService {
 
   }
 
-  @Transactional
   public void addPetToOwner(long ownerId, Pet pet) throws SQLException, NotFoundException {
     String query = "UPDATE pets SET owner_id=? WHERE id=?";
     System.out.println("------------------------------------");
@@ -722,6 +769,12 @@ public class DatabaseService {
 
     Pet pet = getPet(petId);
     Owner owner = getOwner(ownerId);
+    if (pet == null) {
+      throw new NotFoundException("Pet not found");
+    }
+    if (owner == null) {
+      throw new NotFoundException("Owner not found");
+    }
     if (pet.getOwner().getId() != owner.getId()) {
       throw new NotFoundException("Not that owner's pet");
     }

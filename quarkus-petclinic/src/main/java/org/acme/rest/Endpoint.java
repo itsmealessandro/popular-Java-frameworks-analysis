@@ -142,20 +142,28 @@ public class Endpoint {
     }
   }
 
-  // list owners
+  /**
+   * Get the owner with that last name
+   * 
+   * @param lastName
+   * @return
+   */
   @GET
   @Path("/owners")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response listOwners() {
+  public Response listOwners(@QueryParam("lastName") String lastName) {
     try {
-      List<Owner> owners = databaseService.listOwners();
-      owners = databaseService.listOwners();
-      return Response.ok(owners).build();
+      Owner owner = databaseService.listOwnerPets(lastName);
+      return Response.ok(owner).build();
     } catch (SQLException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
     }
 
   }
+
+  // NOTE: Pet methods #######################################
 
   // List pets (GET /pets)
   @GET
@@ -170,8 +178,6 @@ public class Endpoint {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
   }
-
-  // NOTE: Pet methods #######################################
 
   /**
    * // Get a pet by ID (GET /pets/{petId})
@@ -268,32 +274,6 @@ public class Endpoint {
   }
 
   /**
-   * // Add a pet to an owner (PUT /owners/{ownerId}/pets)
-   * 
-   * @param ownerId
-   * @param pet
-   * @return
-   */
-  @PUT
-  @Path("/owners/{ownerId}/pets")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response addPetToOwner(@PathParam("ownerId") long ownerId, Pet pet) {
-    try {
-
-      databaseService.addPetToOwner(ownerId, pet);
-      pet.setOwner(databaseService.getOwner(ownerId));
-
-      return Response.ok(pet).build();
-
-    } catch (NotFoundException e) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    } catch (SQLException e) {
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-    }
-  }
-
-  /**
    * Get the Pet with that petId associated with the owner with that ownerId
    * 
    * @param ownerId
@@ -309,6 +289,32 @@ public class Endpoint {
     try {
       Pet pet = databaseService.getOwnerPet(ownerId, petId);
       return Response.ok(pet).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  /**
+   * // Add a pet to an owner (POST /owners/{ownerId}/pets)
+   * 
+   * @param ownerId
+   * @param pet
+   * @return
+   */
+  @POST
+  @Path("/owners/{ownerId}/pets")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response addPetToOwner(@PathParam("ownerId") long ownerId, Pet pet) {
+    try {
+
+      databaseService.addPetToOwner(ownerId, pet);
+      pet.setOwner(databaseService.getOwner(ownerId));
+
+      return Response.ok(pet).build();
+
     } catch (NotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).build();
     } catch (SQLException e) {
