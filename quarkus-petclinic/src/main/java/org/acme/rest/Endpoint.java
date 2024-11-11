@@ -499,7 +499,7 @@ public class Endpoint {
   }
 
   /**
-   * create visit
+   * create visit no pet id (nonsense)
    * 
    * @return
    */
@@ -519,7 +519,30 @@ public class Endpoint {
     }
   }
 
-  // NOTE: Specialties
+  /**
+   * create visit for a pet that has a owner
+   * 
+   * @return
+   */
+  @POST
+  @Path("/owners/{ownerId}/pets/{petId}/visits")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response addVisitToPet(Visit visit, @PathParam("ownerId") long ownerId, @PathParam("petId") long petId) {
+    try {
+
+      databaseService.addVisitToPet(visit, ownerId, petId);
+      return Response.status(Response.Status.CREATED).entity(visit).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (NamingException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+  }
+
+  // NOTE: Specialties ##########################################################
 
   @GET
   @Path("/specialties/{specialtyId}")

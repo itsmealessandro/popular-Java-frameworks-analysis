@@ -1130,4 +1130,54 @@ public class DatabaseService {
     }
   }
 
+  /**
+   * adds a visit to a pet
+   * 
+   * @param visit
+   * @throws SQLException
+   * @throws NamingException
+   */
+  public void addVisitToPet(Visit visit, long ownerId, long petId)
+      throws SQLException, NamingException, NotFoundException {
+
+    // get pet if exits and has owner
+
+    Pet pet = getPet(petId);
+    if (pet == null) {
+      throw new NotFoundException();
+    }
+    long ownerId_stored = getOwner(ownerId).getId();
+    if (ownerId_stored == 0) {
+      throw new NotFoundException();
+    }
+
+    if (pet.getOwnerId() != ownerId_stored) {
+      throw new NotFoundException();
+    }
+
+    String query = "INSERT INTO visits (visit_date,description,pet_id) VALUES (?,?,?)";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
+      stmt.setDate(1, Date.valueOf(visit.getDate()));
+      stmt.setString(2, visit.getDescription());
+      stmt.setLong(3, pet.getId());
+
+      visit.setPetId(pet.getId());
+
+      stmt.executeUpdate();
+      try (ResultSet keys = stmt.getGeneratedKeys()) {
+        if (!keys.next()) {
+          throw new SQLException("No key");
+        }
+        Long key = keys.getLong(1);
+        visit.setId(key.intValue());
+
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+  }
+
 }
