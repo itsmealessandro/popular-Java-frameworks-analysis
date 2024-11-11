@@ -167,6 +167,30 @@ public class DatabaseService {
   }
 
   /**
+   * @param ownerId
+   * @param petId
+   * @return Pet data if that pet is related to that owner
+   * @throws SQLException
+   * @throws NotFoundException
+   */
+  public Pet getOwnerPet(long ownerId, long petId) throws SQLException, NotFoundException {
+
+    Pet pet = getPet(petId);
+    Owner owner = getOwner(ownerId);
+    if (pet == null) {
+      throw new NotFoundException("Pet not found");
+    }
+    if (owner == null) {
+      throw new NotFoundException("Owner not found");
+    }
+    if (pet.getOwner().getId() != owner.getId()) {
+      throw new NotFoundException("Not that owner's pet");
+    }
+    return pet;
+
+  }
+
+  /**
    * adds a new owner
    * 
    * @param owner
@@ -356,6 +380,31 @@ public class DatabaseService {
     }
   }
 
+  public void addPetToOwner(long ownerId, Pet pet) throws SQLException, NotFoundException {
+    String query = "UPDATE pets SET owner_id=? WHERE id=?";
+    System.out.println("------------------------------------");
+    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setLong(1, ownerId);
+      Pet petCaughtByName = getPetByName(pet.getName());
+      pet.setId(petCaughtByName.getId());
+      stmt.setLong(2, petCaughtByName.getId());
+      int affected_rows = stmt.executeUpdate();
+      if (affected_rows == 0) {
+        throw new NotFoundException("Owner or Pet not found");
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException(e.getMessage());
+    } catch (NotFoundException e) {
+      e.printStackTrace();
+      throw new NotFoundException(e.getMessage());
+    }
+  }
+
+  // NOTE: PET methods
+  // ----------------------------------------------------------------------------------------------
+
   private Pet getPetByName(String name) throws SQLException, NotFoundException {
     Pet pet = new Pet();
     String query = "SELECT * FROM pets WHERE name = ?";
@@ -385,31 +434,6 @@ public class DatabaseService {
 
   }
 
-  public void addPetToOwner(long ownerId, Pet pet) throws SQLException, NotFoundException {
-    String query = "UPDATE pets SET owner_id=? WHERE id=?";
-    System.out.println("------------------------------------");
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setLong(1, ownerId);
-      Pet petCaughtByName = getPetByName(pet.getName());
-      pet.setId(petCaughtByName.getId());
-      stmt.setLong(2, petCaughtByName.getId());
-      int affected_rows = stmt.executeUpdate();
-      if (affected_rows == 0) {
-        throw new NotFoundException("Owner or Pet not found");
-      }
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-      throw new SQLException(e.getMessage());
-    } catch (NotFoundException e) {
-      e.printStackTrace();
-      throw new NotFoundException(e.getMessage());
-    }
-  }
-
-  // PET methods
-  // ----------------------------------------------------------------------------------------------
-
   /**
    * @param petId
    * @return the Pet Found
@@ -435,7 +459,6 @@ public class DatabaseService {
       // set references
       System.out.println("#################");
       System.out.println(rs.getLong("owner_id"));
-      // BUG: For some reason it does not set it, at lean not shown in JSON result
       long ownerIdReference = rs.getLong("owner_id");
       if (ownerIdReference != 0) {
         pet.setOwnerId(ownerIdReference);
@@ -540,6 +563,32 @@ public class DatabaseService {
 
   }
 
+  /**
+   * @param petId
+   * @return
+   * @throws NotFoundException
+   * @throws SQLException
+   */
+  public Pet deletePet(long petId) throws NotFoundException, SQLException {
+
+    Pet pet = getPet(petId);
+
+    String query_delete = "DELETE FROM pets WHERE id=?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement stmt_delete = connection.prepareStatement(query_delete);) {
+
+      stmt_delete.setLong(1, petId);
+      stmt_delete.executeUpdate();
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+    return pet;
+
+  }
+
   // VET methods
   // ----------------------------------------------------------------------------------------------
   @Transactional
@@ -619,8 +668,39 @@ public class DatabaseService {
     return specialties;
   }
 
-  // Visit Methods
+  // NOTE: Visit Methods
   // -----------------------------------------------------------------------------------------------
+
+  /**
+   * get the visit from id
+   * 
+   * @param id
+   * @return the visit or null if not exists
+   * @throws SQLException
+   */
+  public Visit getVisit(long id) throws SQLException {
+    String query = "SELECT * FROM visits WHERE id=?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+      preparedStatement.setLong(1, id);
+      ResultSet rs = preparedStatement.executeQuery();
+      if (!rs.next()) {
+        return null;
+      }
+
+      Visit visit = new Visit();
+      visit.setId(id);
+      visit.setDate(LocalDate.parse(rs.getDate("visit_date").toString()));
+      visit.setPetId(rs.getLong("pet_id"));
+      return visit;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+  }
+
   @Transactional
   public void addVisit(long petId, String visitDate, String description) {
     String query = "INSERT INTO visits (pet_id, visit_date, description) VALUES (?, ?, ?)";
@@ -654,7 +734,7 @@ public class DatabaseService {
     return visits;
   }
 
-  // Types Methods
+  // NOTE: Types Methods
   // -----------------------------------------------------------------------------------------------
 
   /**
@@ -780,6 +860,29 @@ public class DatabaseService {
     }
   }
 
+  public Type updatePetType(Type type) throws NotFoundException, SQLException, NamingException {
+    Type storedType = getType(type.getId());
+    if (storedType == null) {
+      throw new NotFoundException();
+    }
+    if (type.getName() == null || type.getName() == "") {
+      throw new NamingException();
+    }
+    String query = " UPDATE types SET name = ? WHERE id = ?";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);) {
+      stmt.setString(1, type.getName());
+      stmt.setLong(2, storedType.getId());
+
+      type.setId(storedType.getId());
+      return type;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+  }
+
   /**
    * @return a Set of pettypes
    * @throws SQLException
@@ -803,83 +906,4 @@ public class DatabaseService {
     return types;
   }
 
-  /**
-   * @param petId
-   * @return
-   * @throws NotFoundException
-   * @throws SQLException
-   */
-  public Pet deletePet(long petId) throws NotFoundException, SQLException {
-
-    Pet pet = getPet(petId);
-
-    String query_delete = "DELETE FROM pets WHERE id=?";
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement stmt_delete = connection.prepareStatement(query_delete);) {
-
-      stmt_delete.setLong(1, petId);
-      stmt_delete.executeUpdate();
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-      throw new SQLException();
-    }
-
-    return pet;
-
-  }
-
-  /**
-   * @param ownerId
-   * @param petId
-   * @return Pet data if that pet is related to that owner
-   * @throws SQLException
-   * @throws NotFoundException
-   */
-  public Pet getOwnerPet(long ownerId, long petId) throws SQLException, NotFoundException {
-
-    Pet pet = getPet(petId);
-    Owner owner = getOwner(ownerId);
-    if (pet == null) {
-      throw new NotFoundException("Pet not found");
-    }
-    if (owner == null) {
-      throw new NotFoundException("Owner not found");
-    }
-    if (pet.getOwner().getId() != owner.getId()) {
-      throw new NotFoundException("Not that owner's pet");
-    }
-    return pet;
-
-  }
-
-  /**
-   * get the visit from id
-   * 
-   * @param id
-   * @return the visit or null if not exists
-   * @throws SQLException
-   */
-  public Visit getVisit(long id) throws SQLException {
-    String query = "SELECT * FROM visits WHERE id=?";
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-
-      preparedStatement.setLong(1, id);
-      ResultSet rs = preparedStatement.executeQuery();
-      if (!rs.next()) {
-        return null;
-      }
-
-      Visit visit = new Visit();
-      visit.setId(id);
-      visit.setDate(LocalDate.parse(rs.getDate("visit_date").toString()));
-      visit.setPetId(rs.getLong("pet_id"));
-      return visit;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      throw new SQLException();
-    }
-
-  }
 }

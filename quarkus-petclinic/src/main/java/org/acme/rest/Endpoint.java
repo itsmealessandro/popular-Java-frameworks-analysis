@@ -334,6 +334,23 @@ public class Endpoint {
 
   // NOTE: pettypes methods ##################################################
 
+  @GET
+  @Path("/pettypes/{pettypeId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getPettype(@PathParam("pettypeId") long pettypeId) {
+    try {
+      Type type = databaseService.getType(pettypeId);
+      if (type == null) {
+
+        return Response.status(Response.Status.NOT_FOUND).build();
+      }
+
+      return Response.ok(type).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
   /**
    * get pettypes Set
    * 
@@ -371,6 +388,32 @@ public class Endpoint {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     } catch (NamingException e) {
       return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+  }
+
+  /**
+   * update pettype
+   * 
+   * @param petType
+   * @return
+   */
+  @PUT
+  @Path("/pettypes/{petTypeId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response updatePetType(Type petType, @PathParam("petTypeId") long petTypeId) {
+    try {
+      if (petTypeId != petType.getId()) {
+        return Response.status(Response.Status.BAD_REQUEST).build();
+      }
+      databaseService.updatePetType(petType);
+      return Response.status(Response.Status.CREATED).entity(petType).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (NamingException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
     }
   }
 
