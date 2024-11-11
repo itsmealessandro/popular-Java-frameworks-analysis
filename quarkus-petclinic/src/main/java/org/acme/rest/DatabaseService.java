@@ -860,6 +860,15 @@ public class DatabaseService {
     }
   }
 
+  /**
+   * update the given pettype
+   * 
+   * @param type
+   * @return
+   * @throws NotFoundException
+   * @throws SQLException
+   * @throws NamingException
+   */
   public Type updatePetType(Type type) throws NotFoundException, SQLException, NamingException {
     Type storedType = getType(type.getId());
     if (storedType == null) {
@@ -906,4 +915,36 @@ public class DatabaseService {
     return types;
   }
 
+  /**
+   * delete pettype
+   * 
+   * @param pettypeId
+   * @return
+   * @throws NotFoundException
+   * @throws SQLException
+   * @throws ObjectReferenceException
+   */
+  public Type deletePetType(long pettypeId) throws NotFoundException, SQLException, ObjectReferenceException {
+
+    Type type = getType(pettypeId);
+    if (type == null) {
+      throw new NotFoundException("type not found");
+    }
+
+    String query = "DELETE FROM types WHERE id = ?";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setLong(1, pettypeId);
+      stmt.executeUpdate();
+
+      return type;
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      if (e.getSQLState().equals("23503")) {
+        throw new ObjectReferenceException();
+      }
+      throw new SQLException();
+    }
+  }
 }

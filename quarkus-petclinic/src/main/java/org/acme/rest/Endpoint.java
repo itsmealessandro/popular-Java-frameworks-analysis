@@ -407,7 +407,7 @@ public class Endpoint {
         return Response.status(Response.Status.BAD_REQUEST).build();
       }
       databaseService.updatePetType(petType);
-      return Response.status(Response.Status.CREATED).entity(petType).build();
+      return Response.ok(petType).build();
     } catch (SQLException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     } catch (NamingException e) {
@@ -417,20 +417,23 @@ public class Endpoint {
     }
   }
 
+  /**
+   * detele pettype
+   * 
+   * @param petTypeId
+   * @return
+   */
   @DELETE
   @Path("/pettypes/{petTypeId}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response deletePetType(Type petType, @PathParam("petTypeId") long petTypeId) {
+  public Response deletePetType(@PathParam("petTypeId") long petTypeId) {
     try {
-      if (petTypeId != petType.getId()) {
-        return Response.status(Response.Status.BAD_REQUEST).build();
-      }
-      databaseService.updatePetType(petType);
-      return Response.status(Response.Status.CREATED).entity(petType).build();
+      Type type = databaseService.deletePetType(petTypeId);
+      return Response.ok(type).build();
     } catch (SQLException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-    } catch (NamingException e) {
+    } catch (ObjectReferenceException e) {
       return Response.status(Response.Status.BAD_REQUEST).build();
     } catch (NotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).build();
