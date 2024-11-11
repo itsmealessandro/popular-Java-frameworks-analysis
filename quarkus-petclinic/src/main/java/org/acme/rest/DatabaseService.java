@@ -1009,6 +1009,39 @@ public class DatabaseService {
 
   }
 
+  /**
+   * delete specialty
+   * 
+   * @param specialtyId
+   * @return
+   * @throws NotFoundException
+   * @throws SQLException
+   * @throws ObjectReferenceException
+   */
+  public Specialty deleteSpecialty(long specialtyId) throws NotFoundException, SQLException, ObjectReferenceException {
+
+    Specialty type = getSpecialty(specialtyId);
+    if (type == null) {
+      throw new NotFoundException("type not found");
+    }
+
+    String query = "DELETE FROM specialties WHERE id = ?";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setLong(1, specialtyId);
+      stmt.executeUpdate();
+
+      return type;
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      if (e.getSQLState().equals("23503")) {
+        throw new ObjectReferenceException();
+      }
+      throw new SQLException();
+    }
+  }
+
   // NOTE: Visit Methods
   // -----------------------------------------------------------------------------------------------
 

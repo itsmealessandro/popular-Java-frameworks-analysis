@@ -556,4 +556,27 @@ public class Endpoint {
     }
   }
 
+  /**
+   * detele specialty
+   * 
+   * @param specialtyId
+   * @return
+   */
+  @DELETE
+  @Path("/specialties/{specialtyId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteSpecialty(@PathParam("specialtyId") long specialtyId) {
+    try {
+      Specialty specialty = databaseService.deleteSpecialty(specialtyId);
+      return Response.ok(specialty).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (ObjectReferenceException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+  }
+
 }
