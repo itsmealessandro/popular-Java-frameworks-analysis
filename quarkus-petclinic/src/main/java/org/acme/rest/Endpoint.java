@@ -480,22 +480,43 @@ public class Endpoint {
     }
   }
 
-  // Add a visit (POST /visits)
+  /**
+   * get visits Set
+   * 
+   * @return the Set of pet types
+   */
+  @GET
+  @Path("/visits")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response listVisits() {
+    try {
+      Set<Visit> types = databaseService.listVisits();
+      return Response.ok(types).build();
+
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  /**
+   * create visit
+   * 
+   * @return
+   */
   @POST
   @Path("/visits")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response addVisit(Visit visit) {
-    databaseService.addVisit(visit.getPet().getId(), visit.getDate().toString(), visit.getDescription());
-    return Response.status(Response.Status.CREATED).entity(visit).build();
-  }
+    try {
 
-  // List visits (GET /visits)
-  @GET
-  @Path("/visits")
-  @Produces(MediaType.APPLICATION_JSON)
-  public List<Visit> listVisits() {
-    return databaseService.listVisits();
+      databaseService.addVisit(visit);
+      return Response.status(Response.Status.CREATED).entity(visit).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (NamingException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
   }
 
   // NOTE: Specialties

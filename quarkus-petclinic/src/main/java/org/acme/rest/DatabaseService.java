@@ -752,7 +752,7 @@ public class DatabaseService {
    * @throws SQLException
    */
   public Set<Type> listPetTypes() throws SQLException {
-    String query = "SELECT * FROM types";
+    String query = "SELECT id FROM types";
     Set<Type> types = new HashSet<>();
     try (Connection conn = dataSource.getConnection();
         Statement stmt = conn.createStatement();
@@ -1076,38 +1076,58 @@ public class DatabaseService {
 
   }
 
-  @Transactional
-  public void addVisit(long petId, String visitDate, String description) {
-    String query = "INSERT INTO visits (pet_id, visit_date, description) VALUES (?, ?, ?)";
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setLong(1, petId);
-      stmt.setDate(2, Date.valueOf(visitDate));
-      stmt.setString(3, description);
-      stmt.executeUpdate();
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
   /**
-   * @return a Set of pettypes
+   * @return a Set of visits
    * @throws SQLException
    */
   public Set<Visit> listVisits() throws SQLException {
-    String query = "SELECT * FROM types";
-    Set<Visit> types = new HashSet<>();
+    String query = "SELECT id FROM visits";
+    Set<Visit> visits = new HashSet<>();
     try (Connection conn = dataSource.getConnection();
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
       while (rs.next()) {
-        Visit type = new Visit();
-        type.setId(rs.getInt("id"));
+        Visit visit = getVisit(rs.getLong("id"));
+        visits.add(visit);
+
+      }
+      return visits;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+  }
+
+  /**
+   * adds a visit
+   * 
+   * @param visit
+   * @throws SQLException
+   * @throws NamingException
+   */
+  public void addVisit(Visit visit) throws SQLException, NamingException {
+    System.out.println("hello?");
+
+    String query = "INSERT INTO visits (visit_date,description) VALUES (?,?)";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
+      stmt.setDate(1, Date.valueOf(visit.getDate()));
+      stmt.setString(2, visit.getDescription());
+
+      stmt.executeUpdate();
+      try (ResultSet keys = stmt.getGeneratedKeys()) {
+        if (!keys.next()) {
+          throw new SQLException("No key");
+        }
+        Long key = keys.getLong(1);
+        visit.setId(key.intValue());
+
       }
     } catch (SQLException e) {
       e.printStackTrace();
       throw new SQLException();
     }
-    return types;
   }
 
 }
