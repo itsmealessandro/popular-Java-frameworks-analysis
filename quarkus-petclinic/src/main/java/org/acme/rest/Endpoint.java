@@ -417,6 +417,26 @@ public class Endpoint {
     }
   }
 
+  @DELETE
+  @Path("/pettypes/{petTypeId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deletePetType(Type petType, @PathParam("petTypeId") long petTypeId) {
+    try {
+      if (petTypeId != petType.getId()) {
+        return Response.status(Response.Status.BAD_REQUEST).build();
+      }
+      databaseService.updatePetType(petType);
+      return Response.status(Response.Status.CREATED).entity(petType).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (NamingException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+  }
+
   // NOTE: vets methods ##################################################
 
   // Add a vet (POST /vets)
