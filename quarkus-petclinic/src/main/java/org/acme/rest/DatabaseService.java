@@ -758,9 +758,9 @@ public class DatabaseService {
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
       while (rs.next()) {
-        Type type = new Type();
-        type.setId(rs.getInt("id"));
-        type.setName(rs.getString("name"));
+        long type_id = rs.getInt("id");
+        Type type = getType(type_id);
+
         types.add(type);
       }
     } catch (SQLException e) {
@@ -1089,24 +1089,25 @@ public class DatabaseService {
     }
   }
 
-  @Transactional
-  public List<Visit> listVisits() {
-    String query = "SELECT * FROM visits";
-    List<Visit> visits = new ArrayList<>();
+  /**
+   * @return a Set of pettypes
+   * @throws SQLException
+   */
+  public Set<Visit> listVisits() throws SQLException {
+    String query = "SELECT * FROM types";
+    Set<Visit> types = new HashSet<>();
     try (Connection conn = dataSource.getConnection();
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
       while (rs.next()) {
-        Visit visit = new Visit();
-        visit.setId(rs.getInt("id"));
-        visit.setDate(rs.getDate("visit_date").toLocalDate());
-        visit.setDescription(rs.getString("description"));
-        visits.add(visit);
+        Visit type = new Visit();
+        type.setId(rs.getInt("id"));
       }
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
-    return visits;
+    return types;
   }
 
 }
