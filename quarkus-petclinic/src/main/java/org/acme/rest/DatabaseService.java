@@ -479,22 +479,23 @@ public class DatabaseService {
    *            add a new Pet if the Type exists
    * @exception BadRequestException if type do not exists or its id does not match
    */
-  public void addPet(Pet pet) { // Tested
+  public void addPet(Pet pet) throws SQLException {
+
     String query = "INSERT INTO pets (name, birth_date,type_id) VALUES (?,?,?)";
-
-    Type type_from_request = pet.getType();
-    System.out.println(type_from_request.getId() + ": TYPE ID");
-
-    Type type = getType(type_from_request.getId());
-    System.out.println(type);
-    System.out.println(type_from_request.getName() + " == " + type.getName() + "?");
-    if (type == null || !type.getName().equals(type_from_request.getName())) {
-      System.out.println("bad request" + "\n" + type.toString());
-      throw new BadRequestException();
-    }
-    System.out.println("check passed");
     try (Connection conn = dataSource.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
+      Type type_from_request = pet.getType();
+      System.out.println(type_from_request.getId() + ": TYPE ID");
+
+      Type type = getType(type_from_request.getId());
+      System.out.println(type);
+      System.out.println(type_from_request.getName() + " == " + type.getName() + "?");
+      if (type == null || !type.getName().equals(type_from_request.getName())) {
+        System.out.println("bad request" + "\n" + type.toString());
+        throw new BadRequestException();
+      }
+      System.out.println("check passed");
       stmt.setString(1, pet.getName());
       stmt.setDate(2, Date.valueOf(pet.getBirthDate()));
       stmt.setLong(3, pet.getType().getId());
@@ -510,6 +511,7 @@ public class DatabaseService {
 
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
 
   }
@@ -659,7 +661,7 @@ public class DatabaseService {
    * @param id
    * @return Type if found, null if not found
    */
-  public Type getType(long id) {
+  public Type getType(long id) throws SQLException {
 
     Type type = new Type();
 
@@ -679,10 +681,11 @@ public class DatabaseService {
       type.setId(id);
       type.setName(rs.getString("name"));
 
+      return type;
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
-    return type;
 
   }
 

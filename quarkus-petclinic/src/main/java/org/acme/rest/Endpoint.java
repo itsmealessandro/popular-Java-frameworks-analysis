@@ -228,9 +228,9 @@ public class Endpoint {
       return Response.status(Response.Status.CREATED).entity(pet).build();
 
     } catch (BadRequestException e) {
-
-      System.out.println("nah");
       return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 
   }
