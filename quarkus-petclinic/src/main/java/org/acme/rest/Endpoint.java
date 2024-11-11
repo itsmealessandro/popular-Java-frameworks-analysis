@@ -542,6 +542,30 @@ public class Endpoint {
     }
   }
 
+  /**
+   * update visit
+   * 
+   * @param visit
+   * @return
+   */
+  @PUT
+  @Path("/visits/{visitId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response updateVisit(Visit visit, @PathParam("visitId") long visitId) {
+    try {
+      visit.setId(visitId);
+      databaseService.updateVisit(visit);
+      return Response.ok(visit).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (NamingException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+  }
+
   // NOTE: Specialties ##########################################################
 
   @GET

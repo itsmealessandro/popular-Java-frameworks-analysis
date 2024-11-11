@@ -1180,4 +1180,43 @@ public class DatabaseService {
     }
   }
 
+  /**
+   * update the given visit
+   * 
+   * @param visit
+   * @return
+   * @throws NotFoundException
+   * @throws SQLException
+   * @throws NamingException
+   */
+  public Visit updateVisit(Visit visit) throws NotFoundException, SQLException, NamingException {
+    Visit storedVisit = getVisit(visit.getId());
+    if (storedVisit == null) {
+      throw new NotFoundException();
+    }
+    if (visit.getDescription() == null || visit.getDescription() == "" ||
+        visit.getDate() == null || visit.getDate().toString() == "") {
+      throw new NamingException();
+    }
+    String query = " UPDATE visits SET description = ?, visit_date = ? WHERE id = ?";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);) {
+      stmt.setString(1, visit.getDescription());
+      stmt.setDate(2, Date.valueOf(visit.getDate()));
+      stmt.setLong(3, storedVisit.getId());
+
+      stmt.executeUpdate();
+
+      visit.setPetId(storedVisit.getPetId());
+
+      visit.setId(storedVisit.getId());
+
+      return visit;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+  }
+
 }
