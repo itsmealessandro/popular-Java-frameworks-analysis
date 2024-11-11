@@ -463,6 +463,23 @@ public class Endpoint {
     return databaseService.listVets();
   }
 
+  // NOTE: Visits
+
+  @GET
+  @Path("/visits/{visitId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getVisit(@PathParam("visitId") long visitId) {
+    try {
+      Visit visit = databaseService.getVisit(visitId);
+      if (visit == null) {
+        return Response.status(Response.Status.NOT_FOUND).build();
+      }
+      return Response.ok(visit).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
   // Add a visit (POST /visits)
   @POST
   @Path("/visits")

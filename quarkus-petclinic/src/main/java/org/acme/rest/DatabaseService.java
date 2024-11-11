@@ -1066,6 +1066,7 @@ public class DatabaseService {
       Visit visit = new Visit();
       visit.setId(id);
       visit.setDate(LocalDate.parse(rs.getDate("visit_date").toString()));
+      visit.setDescription(rs.getString("description"));
       visit.setPetId(rs.getLong("pet_id"));
       return visit;
     } catch (SQLException e) {

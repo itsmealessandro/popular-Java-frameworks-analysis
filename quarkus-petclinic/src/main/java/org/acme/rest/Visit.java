@@ -5,11 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Visit extends PanacheEntity {
   private LocalDate date;
   private String description;
 
+  @JsonIgnore
   @ManyToOne
   private Pet pet;
 
