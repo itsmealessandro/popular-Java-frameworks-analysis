@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import java.util.ArrayList;
@@ -22,6 +23,9 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 
+/**
+ * 
+ */
 @ApplicationScoped
 public class DatabaseService {
 
@@ -446,7 +450,7 @@ public class DatabaseService {
 
       pet.setVisits(visits);
 
-      pet.setType(getType(rs.getInt("type_id")));
+      pet.setType(getType(rs.getLong("type_id")));
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -655,7 +659,6 @@ public class DatabaseService {
    * @param id
    * @return Type if found, null if not found
    */
-  @Transactional
   public Type getType(long id) {
 
     Type type = new Type();
@@ -683,21 +686,104 @@ public class DatabaseService {
 
   }
 
-  @Transactional
-  public void addPetType(String typeName) {
-    String query = "INSERT INTO types (name) VALUES (?)";
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setString(1, typeName);
-      stmt.executeUpdate();
+  /**
+   * @param name
+   * @return Type if exists with that name
+   * @throws SQLException
+   */
+  private Type getTypeByName(String name) throws SQLException {
+
+    String query = "SELECT id FROM types WHERE name = ? ";
+
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setString(1, name);
+      ResultSet rs = stmt.executeQuery();
+      if (rs.next()) {
+        Type type = getType(rs.getLong("id"));
+        return type;
+      }
+      return null;
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
   }
 
-  @Transactional
-  public List<Type> listPetTypes() {
+  /**
+   * @param name
+   * @return true if is unique, false otherways
+   * @throws SQLException
+   */
+  private boolean pettypesIsUnique(String name) throws SQLException {
+
+    String query = "SELECT COUNT(*) AS instances FROM types WHERE name = ?";
+
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+      System.out.println("problem 1");
+      stmt.setString(1, name);
+      System.out.println("problem 2");
+      ResultSet rs = stmt.executeQuery();
+      if (rs.next()) {
+        int number_of_instances = rs.getInt("instances");
+        System.out.println("problem 3");
+        return (number_of_instances == 0);
+      }
+      return false;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+  }
+
+  /**
+   * adds a new pettype
+   * 
+   * @param typeName
+   */
+  public void addPetType(Type pettype) throws SQLException, NamingException {
+
+    System.out.println("In pettype creation");
+    if (!pettypesIsUnique(pettype.getName())) {
+      System.out.println("name not unique");
+      throw new NamingException();
+    }
+
+    String query = "INSERT INTO types (name) VALUES (?)";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+      System.out.println("problem 4");
+
+      stmt.setString(1, pettype.getName());
+
+      System.out.println("problem 5");
+
+      stmt.executeUpdate();
+      try (ResultSet keys = stmt.getGeneratedKeys()) {
+        if (!keys.next()) {
+          throw new SQLException("No key");
+        }
+        Long key = keys.getLong(1);
+        pettype.setId(key.intValue());
+
+        System.out.println("pet created");
+
+      } catch (SQLException e) {
+        e.printStackTrace();
+        throw new SQLException();
+      }
+    }
+  }
+
+  /**
+   * @return a Set of pettypes
+   * @throws SQLException
+   */
+  public Set<Type> listPetTypes() throws SQLException {
     String query = "SELECT * FROM types";
-    List<Type> types = new ArrayList<>();
+    Set<Type> types = new HashSet<>();
     try (Connection conn = dataSource.getConnection();
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
@@ -709,6 +795,7 @@ public class DatabaseService {
       }
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
     return types;
   }

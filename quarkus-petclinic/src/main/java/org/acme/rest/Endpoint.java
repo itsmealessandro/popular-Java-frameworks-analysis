@@ -17,6 +17,9 @@ import jakarta.ws.rs.core.Response;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingException;
 
 @Path("petclinic/api")
 public class Endpoint {
@@ -329,6 +332,48 @@ public class Endpoint {
     }
   }
 
+  // NOTE: pettypes methods ##################################################
+
+  /**
+   * get pettypes Set
+   * 
+   * @return the Set of pet types
+   */
+  @GET
+  @Path("/pettypes")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response listPetTypes() {
+    try {
+      Set<Type> types = databaseService.listPetTypes();
+      return Response.ok(types).build();
+
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  /**
+   * create pettype given the name
+   * 
+   * @param petType
+   * @return
+   */
+  @POST
+  @Path("/pettypes")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response addPetType(Type petType) {
+    try {
+
+      databaseService.addPetType(petType);
+      return Response.status(Response.Status.CREATED).entity(petType).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (NamingException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+  }
+
   // NOTE: vets methods ##################################################
 
   // Add a vet (POST /vets)
@@ -370,9 +415,6 @@ public class Endpoint {
     return databaseService.listVisits();
   }
 
-  // Other endpoints can be added similarly for managing specialties, vet types,
-  // etc.
-
   @GET
   @Path("/specialties")
   @Produces(MediaType.APPLICATION_JSON)
@@ -387,22 +429,6 @@ public class Endpoint {
   public Response addSpecialty(Specialty specialty) {
     databaseService.addSpecialty(specialty.getName());
     return Response.status(Response.Status.CREATED).entity(specialty).build();
-  }
-
-  @GET
-  @Path("/pettypes")
-  @Produces(MediaType.APPLICATION_JSON)
-  public List<Type> listPetTypes() {
-    return databaseService.listPetTypes();
-  }
-
-  @POST
-  @Path("/pettypes")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response addPetType(Type petType) {
-    databaseService.addPetType(petType.getName());
-    return Response.status(Response.Status.CREATED).entity(petType).build();
   }
 
 }
