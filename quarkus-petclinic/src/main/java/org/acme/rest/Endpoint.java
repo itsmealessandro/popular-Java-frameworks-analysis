@@ -510,13 +510,50 @@ public class Endpoint {
     }
   }
 
+  /**
+   * create specialty given the name
+   * 
+   * @param petType
+   * @return
+   */
   @POST
   @Path("/specialties")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response addSpecialty(Specialty specialty) {
-    databaseService.addSpecialty(specialty.getName());
-    return Response.status(Response.Status.CREATED).entity(specialty).build();
+    try {
+
+      databaseService.addSpecialty(specialty);
+      return Response.status(Response.Status.CREATED).entity(specialty).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (NamingException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+  }
+
+  /**
+   * update specialty
+   * 
+   * @param petType
+   * @return
+   */
+  @PUT
+  @Path("/specialties/{specialtyId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response updateSpecialty(Specialty specialty, @PathParam("specialtyId") long specialtyId) {
+    try {
+      specialty.setId(specialtyId);
+      databaseService.updateSpecialty(specialty);
+      return Response.ok(specialty).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (NamingException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
   }
 
 }

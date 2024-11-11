@@ -919,6 +919,96 @@ public class DatabaseService {
     }
   }
 
+  /**
+   * @param name
+   * @return true if is unique, false otherways
+   * @throws SQLException
+   */
+  private boolean specialtyIsUnique(String name) throws SQLException {
+
+    String query = "SELECT COUNT(*) AS instances FROM specialties WHERE name = ?";
+
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setString(1, name);
+      ResultSet rs = stmt.executeQuery();
+      if (rs.next()) {
+        int number_of_instances = rs.getInt("instances");
+        return (number_of_instances == 0);
+      }
+      return false;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+  }
+
+  /**
+   * adds a new specialty
+   * 
+   * @param typeName
+   */
+  public void addSpecialty(Specialty specialty) throws SQLException, NamingException {
+
+    if (!specialtyIsUnique(specialty.getName())) {
+      System.out.println("name not unique");
+      throw new NamingException();
+    }
+
+    String query = "INSERT INTO specialties (name) VALUES (?)";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
+      stmt.setString(1, specialty.getName());
+
+      stmt.executeUpdate();
+      try (ResultSet keys = stmt.getGeneratedKeys()) {
+        if (!keys.next()) {
+          throw new SQLException("No key");
+        }
+        Long key = keys.getLong(1);
+        specialty.setId(key.intValue());
+
+      } catch (SQLException e) {
+        e.printStackTrace();
+        throw new SQLException();
+      }
+    }
+  }
+
+  /**
+   * update the given specialty
+   * 
+   * @param type
+   * @return
+   * @throws NotFoundException
+   * @throws SQLException
+   * @throws NamingException
+   */
+  public Specialty updateSpecialty(Specialty specialty) throws NotFoundException, SQLException, NamingException {
+    Specialty storedSpecialty = getSpecialty(specialty.getId());
+    if (storedSpecialty == null) {
+      throw new NotFoundException();
+    }
+    if (specialty.getName() == null || specialty.getName() == "") {
+      throw new NamingException();
+    }
+    String query = "UPDATE specialties SET name = ? WHERE id = ?";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);) {
+      stmt.setString(1, specialty.getName());
+      stmt.setLong(2, storedSpecialty.getId());
+
+      specialty.setId(storedSpecialty.getId());
+      return specialty;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+  }
+
   // NOTE: Visit Methods
   // -----------------------------------------------------------------------------------------------
 
