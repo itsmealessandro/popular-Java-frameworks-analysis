@@ -566,8 +566,37 @@ public class Endpoint {
     }
   }
 
+  /**
+   * detele visit
+   * 
+   * @param visitId
+   * @return
+   */
+  @DELETE
+  @Path("/visits/{visitId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteVisit(@PathParam("visitId") long visitId) {
+    try {
+      Visit visit = databaseService.deleteVisit(visitId);
+      return Response.ok(visit).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    } catch (ObjectReferenceException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    }
+  }
+
   // NOTE: Specialties ##########################################################
 
+  /**
+   * get Specialty by id
+   * 
+   * @param specialtyId
+   * @return
+   */
   @GET
   @Path("/specialties/{specialtyId}")
   @Produces(MediaType.APPLICATION_JSON)
@@ -583,6 +612,11 @@ public class Endpoint {
     }
   }
 
+  /**
+   * get a set of Specialty
+   * 
+   * @return
+   */
   @GET
   @Path("/specialties")
   @Produces(MediaType.APPLICATION_JSON)

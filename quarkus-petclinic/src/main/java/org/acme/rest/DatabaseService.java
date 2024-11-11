@@ -1219,4 +1219,37 @@ public class DatabaseService {
 
   }
 
+  /**
+   * delete visit
+   * 
+   * @param visitId
+   * @return
+   * @throws NotFoundException
+   * @throws SQLException
+   * @throws ObjectReferenceException
+   */
+  public Visit deleteVisit(long visitId) throws NotFoundException, SQLException, ObjectReferenceException {
+
+    Visit visit = getVisit(visitId);
+    if (visit == null) {
+      throw new NotFoundException("visit not found");
+    }
+
+    String query = "DELETE FROM visits WHERE id = ?";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setLong(1, visitId);
+      stmt.executeUpdate();
+
+      return visit;
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      if (e.getSQLState().equals("23503")) {
+        throw new ObjectReferenceException();
+      }
+      throw new SQLException();
+    }
+  }
+
 }
