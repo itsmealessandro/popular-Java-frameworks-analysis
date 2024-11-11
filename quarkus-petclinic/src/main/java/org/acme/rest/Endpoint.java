@@ -481,6 +481,23 @@ public class Endpoint {
     return databaseService.listVisits();
   }
 
+  // NOTE: Specialties
+
+  @GET
+  @Path("/specialties/{specialtyId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getSpecialty(@PathParam("specialtyId") long specialtyId) {
+    try {
+      Specialty specialty = databaseService.getSpecialty(specialtyId);
+      if (specialty == null) {
+        return Response.status(Response.Status.NOT_FOUND).build();
+      }
+      return Response.ok(specialty).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
   @GET
   @Path("/specialties")
   @Produces(MediaType.APPLICATION_JSON)

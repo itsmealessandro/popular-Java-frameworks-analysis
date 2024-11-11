@@ -589,151 +589,6 @@ public class DatabaseService {
 
   }
 
-  // VET methods
-  // ----------------------------------------------------------------------------------------------
-  @Transactional
-  public void addVet(String firstName, String lastName, List<Specialty> specialties) {
-    String query = "INSERT INTO vets (first_name, last_name) VALUES (?, ?)";
-    try (Connection conn = dataSource.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-      stmt.setString(1, firstName);
-      stmt.setString(2, lastName);
-      stmt.executeUpdate();
-
-      ResultSet generatedKeys = stmt.getGeneratedKeys();
-      if (generatedKeys.next()) {
-        int vetId = generatedKeys.getInt(1);
-        for (Specialty specialty : specialties) {
-          String specialtyQuery = "INSERT INTO vet_specialties (vet_id, specialty_id) VALUES (?, ?)";
-          try (PreparedStatement specialtyStmt = conn.prepareStatement(specialtyQuery)) {
-            specialtyStmt.setInt(1, vetId); // BUG: must check
-            specialtyStmt.executeUpdate();
-          }
-        }
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Transactional
-  public List<Vet> listVets() {
-    String query = "SELECT * FROM vets";
-    List<Vet> vets = new ArrayList<>();
-    try (Connection conn = dataSource.getConnection();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(query)) {
-      while (rs.next()) {
-        Vet vet = new Vet();
-        vet.setId(rs.getInt("id"));
-        vet.setFirstName(rs.getString("first_name"));
-        vet.setLastName(rs.getString("last_name"));
-        // Assume we can fetch specialties in another query or map
-        vets.add(vet);
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-    return vets;
-  }
-
-  // Specialty methods
-  // ----------------------------------------------------------------------------------------------
-  @Transactional
-  public void addSpecialty(String specialtyName) {
-    String query = "INSERT INTO specialties (name) VALUES (?)";
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setString(1, specialtyName);
-      stmt.executeUpdate();
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Transactional
-  public List<Specialty> listSpecialties() {
-    String query = "SELECT * FROM specialties";
-    List<Specialty> specialties = new ArrayList<>();
-    try (Connection conn = dataSource.getConnection();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(query)) {
-      while (rs.next()) {
-        Specialty specialty = new Specialty();
-        specialty.setName(rs.getString("name"));
-        specialties.add(specialty);
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-    return specialties;
-  }
-
-  // NOTE: Visit Methods
-  // -----------------------------------------------------------------------------------------------
-
-  /**
-   * get the visit from id
-   * 
-   * @param id
-   * @return the visit or null if not exists
-   * @throws SQLException
-   */
-  public Visit getVisit(long id) throws SQLException {
-    String query = "SELECT * FROM visits WHERE id=?";
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-
-      preparedStatement.setLong(1, id);
-      ResultSet rs = preparedStatement.executeQuery();
-      if (!rs.next()) {
-        return null;
-      }
-
-      Visit visit = new Visit();
-      visit.setId(id);
-      visit.setDate(LocalDate.parse(rs.getDate("visit_date").toString()));
-      visit.setPetId(rs.getLong("pet_id"));
-      return visit;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      throw new SQLException();
-    }
-
-  }
-
-  @Transactional
-  public void addVisit(long petId, String visitDate, String description) {
-    String query = "INSERT INTO visits (pet_id, visit_date, description) VALUES (?, ?, ?)";
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setLong(1, petId);
-      stmt.setDate(2, Date.valueOf(visitDate));
-      stmt.setString(3, description);
-      stmt.executeUpdate();
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Transactional
-  public List<Visit> listVisits() {
-    String query = "SELECT * FROM visits";
-    List<Visit> visits = new ArrayList<>();
-    try (Connection conn = dataSource.getConnection();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(query)) {
-      while (rs.next()) {
-        Visit visit = new Visit();
-        visit.setId(rs.getInt("id"));
-        visit.setDate(rs.getDate("visit_date").toLocalDate());
-        visit.setDescription(rs.getString("description"));
-        visits.add(visit);
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-    return visits;
-  }
-
   // NOTE: Types Methods
   // -----------------------------------------------------------------------------------------------
 
@@ -947,4 +802,172 @@ public class DatabaseService {
       throw new SQLException();
     }
   }
+
+  // NOTE: VET methods
+  // ----------------------------------------------------------------------------------------------
+  @Transactional
+  public void addVet(String firstName, String lastName, List<Specialty> specialties) {
+    String query = "INSERT INTO vets (first_name, last_name) VALUES (?, ?)";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+      stmt.setString(1, firstName);
+      stmt.setString(2, lastName);
+      stmt.executeUpdate();
+
+      ResultSet generatedKeys = stmt.getGeneratedKeys();
+      if (generatedKeys.next()) {
+        int vetId = generatedKeys.getInt(1);
+        for (Specialty specialty : specialties) {
+          String specialtyQuery = "INSERT INTO vet_specialties (vet_id, specialty_id) VALUES (?, ?)";
+          try (PreparedStatement specialtyStmt = conn.prepareStatement(specialtyQuery)) {
+            specialtyStmt.setInt(1, vetId); // BUG: must check
+            specialtyStmt.executeUpdate();
+          }
+        }
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Transactional
+  public List<Vet> listVets() {
+    String query = "SELECT * FROM vets";
+    List<Vet> vets = new ArrayList<>();
+    try (Connection conn = dataSource.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
+      while (rs.next()) {
+        Vet vet = new Vet();
+        vet.setId(rs.getInt("id"));
+        vet.setFirstName(rs.getString("first_name"));
+        vet.setLastName(rs.getString("last_name"));
+        // Assume we can fetch specialties in another query or map
+        vets.add(vet);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return vets;
+  }
+
+  // NOTE: Specialty methods
+  // ----------------------------------------------------------------------------------------------
+
+  public Specialty getSpecialty(long specialtyId) throws SQLException {
+
+    String query = "SELECT * FROM specialties WHERE id = ?";
+    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setLong(1, specialtyId);
+
+      ResultSet rs = stmt.executeQuery();
+
+      Specialty specialty;
+      if (!rs.next()) {
+        return null;
+      }
+      specialty = new Specialty();
+      specialty.setId(rs.getLong("id"));
+      specialty.setName(rs.getString("name"));
+
+      return specialty;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+  }
+
+  public void addSpecialty(String specialtyName) {
+    String query = "INSERT INTO specialties (name) VALUES (?)";
+    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setString(1, specialtyName);
+      stmt.executeUpdate();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public List<Specialty> listSpecialties() {
+    String query = "SELECT * FROM specialties";
+    List<Specialty> specialties = new ArrayList<>();
+    try (Connection conn = dataSource.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
+      while (rs.next()) {
+        Specialty specialty = new Specialty();
+        specialty.setName(rs.getString("name"));
+        specialties.add(specialty);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return specialties;
+  }
+
+  // NOTE: Visit Methods
+  // -----------------------------------------------------------------------------------------------
+
+  /**
+   * get the visit from id
+   * 
+   * @param id
+   * @return the visit or null if not exists
+   * @throws SQLException
+   */
+  public Visit getVisit(long id) throws SQLException {
+    String query = "SELECT * FROM visits WHERE id=?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+      preparedStatement.setLong(1, id);
+      ResultSet rs = preparedStatement.executeQuery();
+      if (!rs.next()) {
+        return null;
+      }
+
+      Visit visit = new Visit();
+      visit.setId(id);
+      visit.setDate(LocalDate.parse(rs.getDate("visit_date").toString()));
+      visit.setPetId(rs.getLong("pet_id"));
+      return visit;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+  }
+
+  @Transactional
+  public void addVisit(long petId, String visitDate, String description) {
+    String query = "INSERT INTO visits (pet_id, visit_date, description) VALUES (?, ?, ?)";
+    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setLong(1, petId);
+      stmt.setDate(2, Date.valueOf(visitDate));
+      stmt.setString(3, description);
+      stmt.executeUpdate();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Transactional
+  public List<Visit> listVisits() {
+    String query = "SELECT * FROM visits";
+    List<Visit> visits = new ArrayList<>();
+    try (Connection conn = dataSource.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
+      while (rs.next()) {
+        Visit visit = new Visit();
+        visit.setId(rs.getInt("id"));
+        visit.setDate(rs.getDate("visit_date").toLocalDate());
+        visit.setDescription(rs.getString("description"));
+        visits.add(visit);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return visits;
+  }
+
 }
