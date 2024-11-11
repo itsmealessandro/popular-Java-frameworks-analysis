@@ -854,6 +854,11 @@ public class DatabaseService {
   // NOTE: Specialty methods
   // ----------------------------------------------------------------------------------------------
 
+  /**
+   * @param specialtyId
+   * @return a Specialty given an id
+   * @throws SQLException
+   */
   public Specialty getSpecialty(long specialtyId) throws SQLException {
 
     String query = "SELECT * FROM specialties WHERE id = ?";
@@ -877,6 +882,11 @@ public class DatabaseService {
     }
   }
 
+  /**
+   * add a new Specialty
+   * 
+   * @param specialtyName
+   */
   public void addSpecialty(String specialtyName) {
     String query = "INSERT INTO specialties (name) VALUES (?)";
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -887,21 +897,26 @@ public class DatabaseService {
     }
   }
 
-  public List<Specialty> listSpecialties() {
-    String query = "SELECT * FROM specialties";
-    List<Specialty> specialties = new ArrayList<>();
+  /**
+   * @return a set of Specialtyes
+   * @throws SQLException
+   */
+  public Set<Specialty> listSpecialties() throws SQLException {
+    String query = "SELECT id FROM specialties";
+    Set<Specialty> specialties = new HashSet<>();
     try (Connection conn = dataSource.getConnection();
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query)) {
       while (rs.next()) {
-        Specialty specialty = new Specialty();
-        specialty.setName(rs.getString("name"));
+        Specialty specialty = getSpecialty(rs.getLong("id"));
         specialties.add(specialty);
       }
+
+      return specialties;
     } catch (SQLException e) {
       e.printStackTrace();
+      throw new SQLException();
     }
-    return specialties;
   }
 
   // NOTE: Visit Methods

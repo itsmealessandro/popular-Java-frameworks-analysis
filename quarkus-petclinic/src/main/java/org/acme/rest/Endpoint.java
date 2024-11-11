@@ -501,8 +501,13 @@ public class Endpoint {
   @GET
   @Path("/specialties")
   @Produces(MediaType.APPLICATION_JSON)
-  public List<Specialty> listSpecialties() {
-    return databaseService.listSpecialties();
+  public Response listSpecialties() {
+    try {
+      Set<Specialty> specialtyes = databaseService.listSpecialties();
+      return Response.ok(specialtyes).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   @POST
