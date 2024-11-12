@@ -440,29 +440,6 @@ public class Endpoint {
     }
   }
 
-  // NOTE: vets methods ##################################################
-
-  // Add a vet (POST /vets)
-  @POST
-  @Path("/vets")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response addVet(Vet vet) {
-    // databaseService.addVet(vet.getFirstName(), vet.getLastName(),
-    // vet.getSpecialties());
-    // BUG: solve this
-    return Response.status(Response.Status.NOT_IMPLEMENTED).entity(vet).build();
-    // return Response.status(Response.Status.CREATED).entity(vet).build();
-  }
-
-  // List vets (GET /vets)
-  @GET
-  @Path("/vets")
-  @Produces(MediaType.APPLICATION_JSON)
-  public List<Vet> listVets() {
-    return databaseService.listVets();
-  }
-
   // NOTE: Visits
 
   @GET
@@ -695,6 +672,30 @@ public class Endpoint {
       return Response.status(Response.Status.BAD_REQUEST).build();
     } catch (NotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).build();
+    }
+  }
+
+  // NOTE: vets methods ##################################################
+
+  /**
+   * Get a vet by ID (GET /vets/{vetsId})
+   * 
+   * @param vetId
+   * @return
+   */
+  @GET
+  @Path("/vets/{vetId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getvet(@PathParam("vetId") long vetId) {
+    try {
+
+      Vet vet = databaseService.getVet(vetId);
+      if (vet == null) {
+        return Response.status(Response.Status.NOT_FOUND).build();
+      }
+      return Response.ok(vet).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
   }
 

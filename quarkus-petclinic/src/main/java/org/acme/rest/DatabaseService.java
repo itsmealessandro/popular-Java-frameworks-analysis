@@ -803,54 +803,6 @@ public class DatabaseService {
     }
   }
 
-  // NOTE: VET methods
-  // ----------------------------------------------------------------------------------------------
-  @Transactional
-  public void addVet(String firstName, String lastName, List<Specialty> specialties) {
-    String query = "INSERT INTO vets (first_name, last_name) VALUES (?, ?)";
-    try (Connection conn = dataSource.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-      stmt.setString(1, firstName);
-      stmt.setString(2, lastName);
-      stmt.executeUpdate();
-
-      ResultSet generatedKeys = stmt.getGeneratedKeys();
-      if (generatedKeys.next()) {
-        int vetId = generatedKeys.getInt(1);
-        for (Specialty specialty : specialties) {
-          String specialtyQuery = "INSERT INTO vet_specialties (vet_id, specialty_id) VALUES (?, ?)";
-          try (PreparedStatement specialtyStmt = conn.prepareStatement(specialtyQuery)) {
-            specialtyStmt.setInt(1, vetId); // BUG: must check
-            specialtyStmt.executeUpdate();
-          }
-        }
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Transactional
-  public List<Vet> listVets() {
-    String query = "SELECT * FROM vets";
-    List<Vet> vets = new ArrayList<>();
-    try (Connection conn = dataSource.getConnection();
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(query)) {
-      while (rs.next()) {
-        Vet vet = new Vet();
-        vet.setId(rs.getInt("id"));
-        vet.setFirstName(rs.getString("first_name"));
-        vet.setLastName(rs.getString("last_name"));
-        // Assume we can fetch specialties in another query or map
-        vets.add(vet);
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-    return vets;
-  }
-
   // NOTE: Specialty methods
   // ----------------------------------------------------------------------------------------------
 
@@ -1248,6 +1200,46 @@ public class DatabaseService {
       if (e.getSQLState().equals("23503")) {
         throw new ObjectReferenceException();
       }
+      throw new SQLException();
+    }
+  }
+
+  // NOTE: Vet
+  /**
+   * @param vetId
+   * @return vet with that id if exits or null if it doesn't
+   * @throws SQLException
+   */
+  public Vet getVet(long vetId) throws SQLException {
+    String query_vet = "SELECT * FROM vets WHERE id = ?";
+    String query_spec = "SELECT specialty_id FROM vet_specialties WHERE vet_id = ? ";
+    Set<Specialty> specialties = new HashSet<>();
+    Vet vet = new Vet();
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query_vet);
+        PreparedStatement stmt_spec = conn.prepareStatement(query_spec)) {
+
+      stmt.setLong(1, vetId);
+      ResultSet rs = stmt.executeQuery();
+      if (!rs.next()) {
+        return null;
+      }
+      vet.setId(rs.getInt("id"));
+      vet.setFirstName(rs.getString("first_name"));
+      vet.setLastName(rs.getString("last_name"));
+
+      // we set his pets
+      stmt_spec.setLong(1, vetId);
+      ResultSet rs_spec = stmt_spec.executeQuery();
+      while (rs_spec.next()) {
+        specialties.add(getSpecialty(rs_spec.getLong("specialty_id")));
+      }
+
+      vet.setSpecialties(specialties);
+      return vet;
+
+    } catch (SQLException e) {
+      e.printStackTrace();
       throw new SQLException();
     }
   }
