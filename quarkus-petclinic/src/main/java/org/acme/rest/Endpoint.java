@@ -699,4 +699,22 @@ public class Endpoint {
     }
   }
 
+  /**
+   * get the list of all vets
+   * 
+   * @return
+   */
+  @GET
+  @Path("/vets")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response listVets() {
+    try {
+
+      Set<Vet> petlist = databaseService.listVets();
+      return Response.ok(petlist).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
 }

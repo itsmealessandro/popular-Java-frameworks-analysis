@@ -267,8 +267,6 @@ public class DatabaseService {
    * @throws NotFoundException
    */
   public Owner listOwnerPets(String lastName) throws SQLException, NotFoundException {
-    System.out.println("#############################################");
-    System.out.println("listOwnerPets");
     Owner owner = getOwnerByLastName(lastName);
     if (owner == null) {
       System.out.println("Owner::::" + owner);
@@ -278,17 +276,11 @@ public class DatabaseService {
     try (Connection conn = dataSource.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query)) {
 
-      System.out.println("#############################################");
-      System.out.println(owner.getId());
       stmt.setLong(1, owner.getId());
       ResultSet rs = stmt.executeQuery();
       Set<Pet> pets = new HashSet<>();
-      int i = 0;
       while (rs.next()) {
 
-        System.out.println("#################");
-        System.out.println("pet #" + i);
-        i++;
         Pet pet = getPet(rs.getLong("id"));
         pets.add(pet);
 
@@ -1242,6 +1234,23 @@ public class DatabaseService {
       e.printStackTrace();
       throw new SQLException();
     }
+  }
+
+  public Set<Vet> listVets() throws SQLException {
+    String query = "SELECT id FROM vets";
+    Set<Vet> vets = new HashSet<>();
+    try (Connection conn = dataSource.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
+      while (rs.next()) {
+        Vet vet = getVet(rs.getLong("id"));
+        vets.add(vet);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+    return vets;
   }
 
 }
