@@ -5,14 +5,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Visit extends PanacheEntity {
-  private Integer id;
   private LocalDate date;
   private String description;
 
+  @JsonIgnore
   @ManyToOne
   private Pet pet;
+
+  // NOTE: the same trick for owner on pet
+  private long petId;
 
   public LocalDate getDate() {
     return date;
@@ -38,11 +43,20 @@ public class Visit extends PanacheEntity {
     this.pet = pet;
   }
 
-  public Integer getId() {
+  public long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(long id) {
     this.id = id;
   }
+
+  public long getPetId() {
+    return petId;
+  }
+
+  public void setPetId(long petId) {
+    this.petId = petId;
+  }
+
 }

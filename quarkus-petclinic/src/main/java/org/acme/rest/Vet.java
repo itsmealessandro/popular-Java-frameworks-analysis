@@ -1,13 +1,18 @@
 package org.acme.rest;
 
+import java.util.Set;
+
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Vet extends PanacheEntity {
-  private Integer id;
   public String firstName;
   public String lastName;
+
+  @OneToMany
+  Set<Specialty> Specialties;
 
   public String getFirstName() {
     return firstName;
@@ -25,11 +30,19 @@ public class Vet extends PanacheEntity {
     this.lastName = lastName;
   }
 
-  public Integer getId() {
+  public long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(long id) {
     this.id = id;
+  }
+
+  public Set<Specialty> getSpecialties() {
+    return Specialties;
+  }
+
+  public void setSpecialties(Set<Specialty> specialties) {
+    Specialties = specialties;
   }
 }

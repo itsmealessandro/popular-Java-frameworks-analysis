@@ -2,26 +2,38 @@ package org.acme.rest;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+
 import java.time.LocalDate;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Pet extends PanacheEntity {
-  private Integer id;
   private String name;
   private LocalDate birthDate;
+
+  private long ownerId;
 
   @ManyToOne
   private Type type;
 
   @ManyToOne
+  @JoinColumn(name = "owner_id")
+  @JsonIgnore
   private Owner owner;
 
-  public Integer getId() {
+  @OneToMany
+  private Set<Visit> visits;
+
+  public long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(long id) {
     this.id = id;
   }
 
@@ -55,5 +67,21 @@ public class Pet extends PanacheEntity {
 
   public void setOwner(Owner owner) {
     this.owner = owner;
+  }
+
+  public long getOwnerId() {
+    return ownerId;
+  }
+
+  public void setOwnerId(long ownerId) {
+    this.ownerId = ownerId;
+  }
+
+  public Set<Visit> getVisits() {
+    return visits;
+  }
+
+  public void setVisits(Set<Visit> visits) {
+    this.visits = visits;
   }
 }

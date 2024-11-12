@@ -4,6 +4,7 @@ import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 
+// WARNING: NOTE THAT WE WROTE ID HERE, IDK WHY IT WORKS
 @Embeddable
 public class VetSpecialtyId implements Serializable {
   private Long vetId;
