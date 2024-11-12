@@ -717,4 +717,28 @@ public class Endpoint {
     }
   }
 
+  /**
+   * Adds a new vet (needs specialty)
+   * 
+   * @param vet
+   * @return the created Vet
+   */
+  @POST
+  @Path("/vets")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response addVet(Vet vet) {
+    try {
+
+      databaseService.addVet(vet);
+      return Response.status(Response.Status.CREATED).entity(vet).build();
+
+    } catch (BadRequestException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+
+  }
+
 }

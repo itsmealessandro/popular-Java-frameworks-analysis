@@ -531,6 +531,14 @@ public class DatabaseService {
 
   }
 
+  /**
+   * update a pet with that id
+   * 
+   * @param petId
+   * @param pet
+   * @throws NotFoundException
+   * @throws SQLException
+   */
   public void updatePet(long petId, Pet pet) throws NotFoundException, SQLException {
     if (getPet(petId) == null) {
       throw new NotFoundException();
@@ -819,6 +827,31 @@ public class DatabaseService {
       specialty.setId(rs.getLong("id"));
       specialty.setName(rs.getString("name"));
 
+      return specialty;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+  }
+
+  /**
+   * @param name
+   * @return specialty with that name if exists, otherways null
+   * @throws SQLException
+   */
+  public Specialty getSpecialtyByName(String name) throws SQLException {
+    String query = "SELECT id FROM specialties WHERE name = ?";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+      stmt.setString(1, name);
+      ResultSet rs = stmt.executeQuery();
+
+      if (!rs.next()) {
+        return null;
+
+      }
+
+      Specialty specialty = getSpecialty(rs.getLong("id"));
       return specialty;
     } catch (SQLException e) {
       e.printStackTrace();
@@ -1236,6 +1269,10 @@ public class DatabaseService {
     }
   }
 
+  /**
+   * @return a set of vets
+   * @throws SQLException
+   */
   public Set<Vet> listVets() throws SQLException {
     String query = "SELECT id FROM vets";
     Set<Vet> vets = new HashSet<>();
@@ -1251,6 +1288,103 @@ public class DatabaseService {
       throw new SQLException();
     }
     return vets;
+  }
+
+  /**
+   * @param vet
+   *            add a new vet if the Type exists
+   * @exception BadRequestException if type do not exists or its id does not match
+   */
+  public Vet addVet(Vet vet) throws SQLException, NotFoundException {
+    // WARNING: A Vet can have more than 1 specialty
+    // NOTE: Pseudocode to better understand this complex method:
+    /*
+     *
+     * Initialize an empty array specialties_id
+     * 
+     * For each specialty in vet.specialties():
+     * If specialty does not exist:{
+     * Return NotFoundException
+     * }
+     * 
+     * Add specialty.id to specialties_id array
+     * 
+     * Create the Vet and store the generated_key
+     * 
+     * For each id in specialties_id:{
+     * Connect the specialty with the Vet using the generated_key
+     * }
+     * 
+     * Return the Vet
+     */
+
+    String query_vet = "INSERT INTO vets (first_name, last_name) VALUES (?,?)";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query_vet, Statement.RETURN_GENERATED_KEYS)) {
+
+      Set<Specialty> specialties_from_request = vet.getSpecialties();
+      Set<Long> specialtieId_set = new HashSet<>();
+
+      for (Specialty specialty : specialties_from_request) {
+        Specialty stored_specialty = getSpecialtyByName(specialty.getName());
+        if (stored_specialty == null) {
+          throw new NotFoundException();
+        }
+        specialty.setId(stored_specialty.getId());
+        specialtieId_set.add(stored_specialty.getId());
+      }
+
+      stmt.setString(1, vet.getFirstName());
+      stmt.setString(2, vet.getLastName());
+      stmt.executeUpdate();
+
+      long vet_key;
+      try (ResultSet keys = stmt.getGeneratedKeys()) {
+        if (!keys.next()) {
+          throw new SQLException("No key");
+        }
+        vet_key = keys.getLong(1);
+        vet.setId(vet_key); // for json Serialization
+
+      }
+
+      vet_specialty_bind(vet_key, specialtieId_set);
+
+      return vet;
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+  }
+
+  /**
+   * For each id in specialties_id:{
+   * Connect the specialty with the Vet using the generated_key
+   * }
+   * 
+   * 
+   * @param vet_key
+   * @param specialtieId_set
+   */
+  private void vet_specialty_bind(long vet_key, Set<Long> specialtieId_set) throws SQLException {
+
+    String query_bind = "INSERT INTO vet_specialties (vet_id, specialty_id) VALUES (?,?)";
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query_bind)) {
+      preparedStatement.setLong(1, vet_key);
+      for (Long specialty_id : specialtieId_set) {
+        preparedStatement.setLong(2, specialty_id);
+        preparedStatement.executeUpdate();
+      }
+
+    } catch (SQLException e) {
+      throw new SQLException("vet_specialty_bind went wrong");
+
+    }
+
   }
 
 }
