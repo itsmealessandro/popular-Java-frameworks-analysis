@@ -1387,4 +1387,104 @@ public class DatabaseService {
 
   }
 
+  /**
+   * update vet details
+   * 
+   * @param vet
+   * @return
+   * @throws SQLException
+   * @throws NotFoundException
+   */
+  public Vet updateVet(Vet vet) throws SQLException, NotFoundException {
+
+    if (getVet(vet.getId()) == null) {
+      throw new NotFoundException("vet not found");
+    }
+
+    // WARNING: This is not the most efficient way to do it, but it get the job
+    // done.
+    // delete all the specialties binded with the vet and put the new ones.
+    Set<Specialty> specialties = vet.getSpecialties();
+    for (Specialty specialty : specialties) {
+      Specialty temp_specialty = getSpecialtyByName(specialty.getName());
+      if (temp_specialty == null) {
+        throw new NotFoundException();
+      }
+      specialty.setId(temp_specialty.getId());// for json Serialization
+    }
+
+    deleteVetSpecialties(specialties, vet.getId());
+
+    String query_update_vet = "UPDATE vets SET first_name = ?, last_name = ? WHERE id = ?";
+    String query_bind_vet_spec = "INSERT INTO vet_specialties (vet_id,specialty_id) VALUES (?,?)";
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement_update = connection.prepareStatement(query_update_vet);
+        PreparedStatement preparedStatement_insert = connection.prepareStatement(query_bind_vet_spec)) {
+
+      // update vet details
+      preparedStatement_update.setString(1, vet.getFirstName());
+      preparedStatement_update.setString(2, vet.getLastName());
+      preparedStatement_update.setLong(3, vet.getId());
+      preparedStatement_update.executeUpdate();
+
+      // insert vet_spec bind
+      for (Specialty specialty : specialties) {
+        preparedStatement_insert.setLong(1, vet.getId());
+        preparedStatement_insert.setLong(2, specialty.getId());
+        preparedStatement_insert.executeUpdate();
+      }
+      return vet;
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new SQLException();
+    }
+
+  }
+
+  /**
+   * deletes all the instances in the database that bind the vet with his
+   * specialties
+   * 
+   * @param specialties
+   * @param vet_id
+   * @throws SQLException
+   */
+  private void deleteVetSpecialties(Set<Specialty> specialties, long vet_id) throws SQLException {
+
+    String query_delete = "DELETE FROM vet_specialties WHERE vet_id = ?";
+
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query_delete)) {
+      for (Specialty specialty : specialties) {
+        preparedStatement.setLong(1, vet_id);
+        preparedStatement.executeUpdate();
+      }
+
+    }
+
+  }
+
+  public Vet deleteVet(long vetId) throws SQLException, NotFoundException {
+    Vet vet = getVet(vetId);
+
+    if (vet == null) {
+      throw new NotFoundException("Vet not found");
+    }
+
+    deleteVetSpecialties(vet.Specialties, vetId);
+
+    String query = "DELETE FROM vets WHERE id = ?";
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+
+      stmt.setLong(1, vetId);
+      stmt.executeUpdate();
+
+      return vet;
+    }
+
+  }
+
 }

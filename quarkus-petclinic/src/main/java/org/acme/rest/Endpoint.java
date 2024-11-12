@@ -741,4 +741,54 @@ public class Endpoint {
 
   }
 
+  /**
+   * updates a vet (needs specialty)
+   * 
+   * @param vet
+   * @return the created Vet
+   */
+  @PUT
+  @Path("/vets/{vetId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response updateVet(Vet vet, @PathParam("vetId") long vetId) {
+    try {
+
+      vet.setId(vetId);
+      databaseService.updateVet(vet);
+      return Response.status(Response.Status.CREATED).entity(vet).build();
+
+    } catch (BadRequestException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+
+  }
+
+  /**
+   * Delete vet
+   * 
+   * @param ownerId
+   * @return the deleted owner
+   */
+  @DELETE
+  @Path("/vets/{vetId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteOwner(@PathParam("vetId") long vetId) {
+    try {
+
+      Vet vet = databaseService.deleteVet(vetId);
+      if (vet == null) {
+        return Response.status(Response.Status.BAD_REQUEST).build();
+      }
+      return Response.ok(vet).build();
+    } catch (NotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (SQLException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
 }
