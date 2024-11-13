@@ -1,5 +1,9 @@
 #!/bin/bash
-#
+PATH_TO_LOCUST="./locust"
+PATH_TO_LOCUST_FILE="${PATH_TO_LOCUST}/simulateSessions.py"
+PATH_TO_RESULTS="${PATH_TO_LOCUST}/csv_results"
+HOST="http://localhost:9966"
+
 time="" # in minutes
 users=""
 db=""
@@ -65,7 +69,7 @@ for i in $(seq 1 3); do
         current_time=$(date '+%Y_%m_%d_%Hh%Mm%Ss')
 
         # Run the locust command with the date in the CSV filename
-        locust --headless -u ${users} -t ${time}s --host http://localhost:9966 --csv ./locust/csv_results/${i}/csv_results_${current_time} -f ./locust/allTests.py
+        locust --headless -u ${users} -t ${time}s --host ${HOST} --csv ${PATH_TO_RESULTS}/${i}/csv_results_${current_time} -f ${PATH_TO_LOCUST_FILE}
         # Quando hai finito, termina il processo Maven
         kill $MAVEN_PID
 
