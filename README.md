@@ -76,12 +76,15 @@ The main goal of this thesis is to analyze the performance of Java web framework
 
 ### Run quarkus pet-clinic
 The following commands will run the quarkus pet-clinic REST API
+```
 cd quarkus-petclinic/
-
 ./mvnw clean compile package quarkus:run -Ddb=1
+```
 
 ### Run spring pet-clinic
+The following commands will run the spring pet-clinic REST API
+```
 cd spring-petclinic-rest-master/
-
 ./mvnw spring-boot:run -Dspring-boot.run.arguments="--db=1" 
+```
 
