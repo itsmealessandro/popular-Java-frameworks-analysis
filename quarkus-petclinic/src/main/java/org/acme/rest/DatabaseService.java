@@ -137,7 +137,7 @@ public class DatabaseService {
       if (!rs.next()) {
         return null;
       }
-      owner.setId(rs.getInt("id"));
+      owner.setId(rs.getLong("id"));
       owner.setFirstName(rs.getString("first_name"));
       owner.setLastName(rs.getString("last_name"));
       owner.setCity(rs.getString("city"));
@@ -171,13 +171,15 @@ public class DatabaseService {
 
     Pet pet = getPet(petId);
     Owner owner = getOwner(ownerId);
+
     if (pet == null) {
       throw new NotFoundException("Pet not found");
     }
     if (owner == null) {
       throw new NotFoundException("Owner not found");
     }
-    if (pet.getOwner().getId() != owner.getId()) {
+
+    if (pet.getOwnerId() != owner.getId()) {
       throw new NotFoundException("Not that owner's pet");
     }
     return pet;
@@ -366,11 +368,14 @@ public class DatabaseService {
 
   public void addPetToOwner(long ownerId, Pet pet) throws SQLException, NotFoundException {
     String query = "UPDATE pets SET owner_id=? WHERE id=?";
-    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+    try (Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
       stmt.setLong(1, ownerId);
-      Pet petCaughtByName = addPet(pet);
-      pet.setId(petCaughtByName.getId());
-      stmt.setLong(2, petCaughtByName.getId());
+      Pet pet_stored = addPet(pet);
+      pet.setId(pet_stored.getId());// for JSON
+      pet.setVisits(new HashSet<>());// for JSON
+      pet.setOwnerId(ownerId);// for JSON
+      stmt.setLong(2, pet_stored.getId());
       int affected_rows = stmt.executeUpdate();
       if (affected_rows == 0) {
         throw new NotFoundException("Owner or Pet not found");
@@ -422,7 +427,7 @@ public class DatabaseService {
    * @return the Pet Found
    * @throws NotFoundException
    */
-  public Pet getPet(long petId) throws NotFoundException {
+  public Pet getPet(long petId) throws NotFoundException, SQLException {
     Set<Visit> visits = new HashSet<>();
     String query_visits = "SELECT id FROM visits WHERE pet_id = ?";
     String query = "SELECT * FROM pets WHERE id = ?";
@@ -439,6 +444,7 @@ public class DatabaseService {
       pet.setId(rs.getInt("id"));
       pet.setName(rs.getString("name"));
       pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
+
       // set references
       long ownerIdReference = rs.getLong("owner_id");
       if (ownerIdReference != 0) {
@@ -455,10 +461,8 @@ public class DatabaseService {
       pet.setVisits(visits);
 
       pet.setType(getType(rs.getLong("type_id")));
-    } catch (SQLException e) {
-      e.printStackTrace();
+      return pet;
     }
-    return pet;
   }
 
   public List<Pet> listPets() throws SQLException {

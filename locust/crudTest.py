@@ -7,6 +7,7 @@ Spring failures:
 Error report
 # occurrences      Error                                                                                               
 ------------------|-------------------------------------------------------------------------------------------------------------------------------------------
+Expected errors:
 45                 PUT /petclinic/api/owners/1/pets/1: HTTPError('501 Server Error:  for url: /petclinic/api/owners/1/pets/1')
 41                 POST /petclinic/api/pets: HTTPError('404 Client Error:  for url: /petclinic/api/pets')              
 44                 POST /petclinic/api/visits: HTTPError('404 Client Error:  for url: /petclinic/api/visits')          
@@ -20,15 +21,23 @@ Quarkus failures:
 Error report
 # occurrences      Error                                                                                               
 ------------------|-------------------------------------------------------------------------------------------------------------------------------------------
+Expected errors:
 35                 POST /petclinic/api/pets: HTTPError('400 Client Error: Bad Request for url: /petclinic/api/pets')   
 43                 PUT /petclinic/api/owners/1/pets/1: HTTPError('405 Client Error: Method Not Allowed for url: /petclinic/api/owners/1/pets/1')
 
-TODO: these have to be solved
+Check if solved:
 28                 GET /petclinic/api/owners/1/pets/1: HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/owners/1/pets/1')
-28                 POST /petclinic/api/owners: HTTPError('400 Client Error: Bad Request for url: /petclinic/api/owners')
-38                 POST /petclinic/api/pettypes: HTTPError('400 Client Error: Bad Request for url: /petclinic/api/pettypes')
-33                 POST /petclinic/api/specialties: HTTPError('400 Client Error: Bad Request for url: /petclinic/api/specialties')
+
+Have to be solved
 35                 POST /petclinic/api/owners/1/pets: HTTPError('404 Client Error: Not Found for url: /petclinic/api/owners/1/pets')
+
+Understand if wrong or not:
+28                 POST /petclinic/api/owners: HTTPError('400 Client Error: Bad Request for url: /petclinic/api/owners')
+    In this case name should be unique because is needed to find the owner
+38                 POST /petclinic/api/pettypes: HTTPError('400 Client Error: Bad Request for url: /petclinic/api/pettypes')
+    In this case name should be unique because is needed to find the type
+33                 POST /petclinic/api/specialties: HTTPError('400 Client Error: Bad Request for url: /petclinic/api/specialties')
+    In this case name should be unique because is needed to find the specialty
 ------------------|-------------------------------------------------------------------------------------------------------------------------------------------
 """
 
