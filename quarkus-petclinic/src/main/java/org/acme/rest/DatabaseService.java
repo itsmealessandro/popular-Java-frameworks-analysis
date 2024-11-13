@@ -493,12 +493,6 @@ public class DatabaseService {
     try (Connection conn = dataSource.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
-      Type type_from_request = pet.getType();
-
-      Type type = getType(type_from_request.getId());
-      if (type == null || !type.getName().equals(type_from_request.getName())) {
-        throw new BadRequestException();
-      }
       stmt.setString(1, pet.getName());
       stmt.setDate(2, Date.valueOf(pet.getBirthDate()));
       stmt.setLong(3, pet.getType().getId());
