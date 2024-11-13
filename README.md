@@ -34,35 +34,48 @@ The main goal of this thesis is to analyze the performance of Java web framework
 
 ```bash
 .
-├── learningArc
-│   ├── code-with-quarkus       # Quarkus-related code and experiments
-│   ├── demo                    # Miscellaneous demo code
-│   ├── docker                  # Docker configurations and files
-│   └── hello_world_micro        # Sample Hello World project with Micronaut
-├── LICENSE                     # Project license information
-├── micronautguide               # Micronaut-related code
-│   └── target
-├── README.md                   # Project documentation (this file)
-├── rest-json-quickstart         # Quarkus REST API example
-│   └── target
-└── spring-petclinic-rest-master # Main PetClinic REST API code and testing scripts
-    ├── docker-compose.yml       # Docker configuration for PetClinic and Locust
-    ├── full_analysis_script.sh  # Script for running full analysis of the API
-    ├── LICENSE.txt              # License for the Spring PetClinic project
-    ├── locust                   # Locust load testing scripts
-    ├── mvnw                     # Maven wrapper for building the project
-    ├── mvnw.cmd
-    ├── petclinic-ermodel.png    # ER diagram for the PetClinic database
-    ├── pom.xml                  # Maven configuration for the project
-    ├── readme.md                # README specific to Spring PetClinic REST API
-    ├── src                      # Source code for the Spring PetClinic API
-    ├── target                   # Build output directory
-    └── test.sh                  # Script to execute tests on the PetClinic API
+├── analysis_spring.sh
+├── LICENSE
+├── locust
+│   ├── allTests.py
+│   ├── crudTest.py
+│   ├── __pycache__
+│   └── reports
+├── micronautguide
+│   ├── aot-jar.properties
+│   ├── aot-native-image.properties
+│   ├── micronaut-cli.yml
+│   ├── mvnw
+│   ├── mvnw.bat
+│   ├── pom.xml
+│   ├── README.md
+│   ├── src
+│   └── target
+├── quarkus-petclinic
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   ├── pom.xml
+│   ├── README.md
+│   ├── src
+│   └── target
+├── README.md
+├── spring-petclinic-rest-master
+│   ├── docker-compose.yml
+│   ├── LICENSE.txt
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   ├── petclinic-ermodel.png
+│   ├── pom.xml
+│   ├── readme.md
+│   ├── src
+│   └── target
+└── test.sh
+```
 
 ## Running
 
 ### Run quarkus pet-clinic
-The following commands will run thr quarkus pet-clinic REST API
+The following commands will run the quarkus pet-clinic REST API
 cd quarkus-petclinic/
 
 ./mvnw clean compile package quarkus:run -Ddb=1
