@@ -58,3 +58,17 @@ The main goal of this thesis is to analyze the performance of Java web framework
     ├── src                      # Source code for the Spring PetClinic API
     ├── target                   # Build output directory
     └── test.sh                  # Script to execute tests on the PetClinic API
+
+## Running
+
+### Run quarkus pet-clinic
+The following commands will run thr quarkus pet-clinic REST API
+cd quarkus-petclinic/
+
+./mvnw clean compile package quarkus:run -Ddb=1
+
+### Run spring pet-clinic
+cd spring-petclinic-rest-master/
+
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--db=1" 
+
