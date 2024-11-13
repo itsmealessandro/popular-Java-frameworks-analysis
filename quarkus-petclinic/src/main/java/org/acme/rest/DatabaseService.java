@@ -64,7 +64,6 @@ public class DatabaseService {
       String query = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='PUBLIC';";
       ResultSet rs = stmt.executeQuery(query);
 
-      System.out.println("Tabelle nel database:");
       while (rs.next()) {
         String tableName = rs.getString("TABLE_NAME");
         stringBuilder.append(tableName);
@@ -234,7 +233,6 @@ public class DatabaseService {
    */
   private Owner getOwnerByLastName(String lastName) throws SQLException {
     Owner owner = new Owner();
-    System.out.println("lastName::::::::" + lastName);
     String query = "SELECT id FROM owners WHERE last_name LIKE ?";
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query);) {
@@ -264,7 +262,6 @@ public class DatabaseService {
   public Owner listOwnerPets(String lastName) throws SQLException, NotFoundException {
     Owner owner = getOwnerByLastName(lastName);
     if (owner == null) {
-      System.out.println("Owner::::" + owner);
       throw new NotFoundException("Owner not found");
     }
     String query = "SELECT id FROM pets WHERE owner_id = ?";
@@ -369,7 +366,6 @@ public class DatabaseService {
 
   public void addPetToOwner(long ownerId, Pet pet) throws SQLException, NotFoundException {
     String query = "UPDATE pets SET owner_id=? WHERE id=?";
-    System.out.println("------------------------------------");
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
       stmt.setLong(1, ownerId);
       Pet petCaughtByName = addPet(pet);
@@ -444,8 +440,6 @@ public class DatabaseService {
       pet.setName(rs.getString("name"));
       pet.setBirthDate(rs.getDate("birth_date").toLocalDate());
       // set references
-      System.out.println("#################");
-      System.out.println(rs.getLong("owner_id"));
       long ownerIdReference = rs.getLong("owner_id");
       if (ownerIdReference != 0) {
         pet.setOwnerId(ownerIdReference);
@@ -496,16 +490,11 @@ public class DatabaseService {
         PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
       Type type_from_request = pet.getType();
-      System.out.println(type_from_request.getId() + ": TYPE ID");
 
       Type type = getType(type_from_request.getId());
-      System.out.println(type);
-      System.out.println(type_from_request.getName() + " == " + type.getName() + "?");
       if (type == null || !type.getName().equals(type_from_request.getName())) {
-        System.out.println("bad request" + "\n" + type.toString());
         throw new BadRequestException();
       }
-      System.out.println("check passed");
       stmt.setString(1, pet.getName());
       stmt.setDate(2, Date.valueOf(pet.getBirthDate()));
       stmt.setLong(3, pet.getType().getId());
@@ -603,10 +592,8 @@ public class DatabaseService {
       stmt.setLong(1, id);
       ResultSet rs = stmt.executeQuery();
       if (!rs.next()) {
-        System.out.println("type not found from query where id:" + id);
         return null;
       } else {
-        System.out.println("type found:" + rs.getString("name"));
       }
 
       type.setId(id);
@@ -655,13 +642,10 @@ public class DatabaseService {
 
     try (Connection conn = dataSource.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query)) {
-      System.out.println("problem 1");
       stmt.setString(1, name);
-      System.out.println("problem 2");
       ResultSet rs = stmt.executeQuery();
       if (rs.next()) {
         int number_of_instances = rs.getInt("instances");
-        System.out.println("problem 3");
         return (number_of_instances == 0);
       }
       return false;
@@ -679,20 +663,15 @@ public class DatabaseService {
    */
   public void addPetType(Type pettype) throws SQLException, NamingException {
 
-    System.out.println("In pettype creation");
     if (!pettypesIsUnique(pettype.getName())) {
-      System.out.println("name not unique");
       throw new NamingException();
     }
 
     String query = "INSERT INTO types (name) VALUES (?)";
     try (Connection conn = dataSource.getConnection();
         PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-      System.out.println("problem 4");
 
       stmt.setString(1, pettype.getName());
-
-      System.out.println("problem 5");
 
       stmt.executeUpdate();
       try (ResultSet keys = stmt.getGeneratedKeys()) {
@@ -701,8 +680,6 @@ public class DatabaseService {
         }
         Long key = keys.getLong(1);
         pettype.setId(key.intValue());
-
-        System.out.println("pet created");
 
       } catch (SQLException e) {
         e.printStackTrace();
@@ -925,7 +902,6 @@ public class DatabaseService {
   public void addSpecialty(Specialty specialty) throws SQLException, NamingException {
 
     if (!specialtyIsUnique(specialty.getName())) {
-      System.out.println("name not unique");
       throw new NamingException();
     }
 
@@ -1079,7 +1055,6 @@ public class DatabaseService {
    * @throws NamingException
    */
   public void addVisit(Visit visit) throws SQLException, NamingException {
-    System.out.println("hello?");
 
     String query = "INSERT INTO visits (visit_date,description) VALUES (?,?)";
     try (Connection conn = dataSource.getConnection();

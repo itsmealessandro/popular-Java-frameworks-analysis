@@ -71,7 +71,6 @@ public class Endpoint {
       if (owner == null) {
         return Response.status(Response.Status.NOT_FOUND).build();
       }
-      System.out.println(owner);
       return Response.ok(owner).build();
     } catch (SQLException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -207,7 +206,6 @@ public class Endpoint {
   public Response getPet(@PathParam("petId") int petId) {
 
     Pet pet = databaseService.getPet(petId);
-    System.out.println(pet);
     if (pet == null) {
       return Response.status(Response.Status.NOT_FOUND).build();
     }
@@ -230,7 +228,6 @@ public class Endpoint {
   public Response addPet(Pet pet) {
     try {
 
-      System.out.println(pet.getType().toString() + ": is type with his id inside the <>");
       databaseService.addPet(pet);
       return Response.status(Response.Status.CREATED).entity(pet).build();
 
