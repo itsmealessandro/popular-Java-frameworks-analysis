@@ -1,5 +1,0 @@
-profile: service
-defaultPackage: com.packtpub.micronaut.hellomicronautgradle
----
-testFramework: junit
-sourceLanguage: java

@@ -1,5 +1,0 @@
-micronaut:
-  application:
-    name: pet-owner
-  server:
-    port: -1
