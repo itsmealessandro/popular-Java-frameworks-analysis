@@ -52,6 +52,7 @@ class PetClinicUser(HttpUser):
         #NOTE: it's a query string
         self.client.get(f"{self.base_path}/owners?lastName={owner_lastName}",)
 
+    # WARNING: owner lastName should be unique 
     @task
     def add_owner(self):
         new_owner_data = {
