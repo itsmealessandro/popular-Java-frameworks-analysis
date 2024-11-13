@@ -372,7 +372,7 @@ public class DatabaseService {
     System.out.println("------------------------------------");
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
       stmt.setLong(1, ownerId);
-      Pet petCaughtByName = getPetByName(pet.getName());
+      Pet petCaughtByName = addPet(pet);
       pet.setId(petCaughtByName.getId());
       stmt.setLong(2, petCaughtByName.getId());
       int affected_rows = stmt.executeUpdate();
@@ -489,7 +489,7 @@ public class DatabaseService {
    *            add a new Pet if the Type exists
    * @exception BadRequestException if type do not exists or its id does not match
    */
-  public void addPet(Pet pet) throws SQLException {
+  public Pet addPet(Pet pet) throws SQLException {
 
     String query = "INSERT INTO pets (name, birth_date,type_id) VALUES (?,?,?)";
     try (Connection conn = dataSource.getConnection();
@@ -518,6 +518,7 @@ public class DatabaseService {
         pet.setId(key.intValue());
 
       }
+      return pet;
 
     } catch (SQLException e) {
       e.printStackTrace();
