@@ -1,5 +1,11 @@
 package org.acme.rest;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSetMetaData;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -49,7 +55,6 @@ public class DatabaseService {
    * 
    * @return
    */
-  @Transactional
   public String listTables() {
     try (Connection conn = dataSource.getConnection();
         Statement stmt = conn.createStatement()) {
@@ -74,51 +79,41 @@ public class DatabaseService {
     }
   }
 
-  /**
-   * Test Method that retuns all instanced of the database
-   * 
-   * @return
-   */
-  public String getAllInstances() {
-    StringBuilder result = new StringBuilder();
+  // Method to fetch data from a table and convert it to a JSONArray
+  public JSONArray fetchTableData(String tableName) throws SQLException {
+    JSONArray jsonArray = new JSONArray();
+    String query = "SELECT * FROM " + tableName;
 
+    try (Connection conn = dataSource.getConnection();
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(query)) {
+
+      ResultSetMetaData metaData = rs.getMetaData();
+      int columnCount = metaData.getColumnCount();
+
+      while (rs.next()) {
+        JSONObject rowJson = new JSONObject();
+        for (int i = 1; i <= columnCount; i++) {
+          rowJson.put(metaData.getColumnName(i), rs.getObject(i));
+        }
+        jsonArray.put(rowJson);
+      }
+    }
+    return jsonArray;
+  }
+
+  // Method to fetch data from all tables and return as a JSONObject
+  public JSONObject fetchAllTablesData() throws SQLException {
+    JSONObject result = new JSONObject();
+
+    // List of all your table names
     String[] tables = { "vets", "specialties", "vet_specialties", "types", "owners", "pets", "visits" };
 
-    try (Connection conn = dataSource.getConnection()) {
-      if (conn == null) {
-        return "Connection failed"; // Aggiunto log di errore
-      }
-
-      for (String table : tables) {
-        result.append("Records from table: ").append(table).append("\n");
-
-        try (Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM " + table)) {
-
-          // Controlla se ci sono risultati
-          if (!rs.isBeforeFirst()) {
-            result.append("No records found.\n");
-          } else {
-            while (rs.next()) {
-              StringBuilder row = new StringBuilder();
-              int columnCount = rs.getMetaData().getColumnCount();
-
-              for (int i = 1; i <= columnCount; i++) {
-                row.append(rs.getMetaData().getColumnName(i)).append(": ")
-                    .append(rs.getString(i)).append(", ");
-              }
-              result.append(row.toString()).append("\n");
-            }
-          }
-        }
-      }
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      return "Error: " + e.getMessage();
+    for (String table : tables) {
+      result.put(table, fetchTableData(table));
     }
 
-    return result.toString();
+    return result;
   }
 
   // NOTE: Owner methods

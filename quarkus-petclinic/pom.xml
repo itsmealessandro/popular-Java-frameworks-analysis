@@ -74,8 +74,14 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-flyway</artifactId>
-  </dependency>
+    </dependency>
 
+    <!-- NOTE: JSON -->
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20210307</version> <!-- O la versione più recente -->
+    </dependency>
   </dependencies>
 
   <build>
@@ -83,7 +89,7 @@
       <plugin>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-maven-plugin</artifactId>
-        <version>10.17.0</version> 
+        <version>10.17.0</version>
       </plugin>
 
       <plugin>

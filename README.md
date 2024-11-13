@@ -23,12 +23,17 @@ Daniele Di Pompeo
 The main goal of this thesis is to analyze the performance of Java web frameworks by assessing their **response times** and **resource utilization** under varying loads. The **Spring PetClinic REST API** serves as the sample application, and **Locust** is used for generating HTTP traffic and analyzing the performance of the API.
 
 ### Tools and Technologies
-- **Spring PetClinic REST API**: A reference implementation of RESTful services using the Spring Framework.
-  - GitHub repository: [spring-petclinic-rest](https://github.com/spring-petclinic/spring-petclinic-rest)
+- **Frameworks**:
+  - *Spring*
+  - *Quarkus*
+- *spring-petclinic GitHub repository*: [spring-petclinic-rest](https://github.com/spring-petclinic/spring-petclinic-rest)
 - **Locust**: A Python-based load testing tool for measuring performance under different scenarios.
   - Official website: [https://locust.io/](https://locust.io/)
 - **Docker**: Used to containerize the application and set up isolated testing environments.
 - **Java**: A long-term support (LTS) version of the Java platform, utilized to ensure compatibility and performance.
+- **JAX-RS**: The Java API for RESTful Web Services
+- **Panache**: Quarkus hibernate ORM
+- **Flyway**: Simplify DB migrations
   
 ## Project Structure
 

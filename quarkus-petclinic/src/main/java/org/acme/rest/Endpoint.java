@@ -21,6 +21,8 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
+import org.json.JSONObject;
+
 @Path("petclinic/api")
 public class Endpoint {
 
@@ -31,9 +33,14 @@ public class Endpoint {
    * @return all the instances of all the tables in the DB
    */
   @GET
-  @Produces(MediaType.TEXT_PLAIN)
-  public String hello() {
-    return databaseService.getAllInstances();
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response homePage() {
+    try {
+      JSONObject result = databaseService.fetchAllTablesData();
+      return Response.ok(result.toString()).build();
+    } catch (Exception e) {
+      return Response.ok(e.getMessage() + "aaaaaaaaaaaaa").build();
+    }
   }
 
   @GET
