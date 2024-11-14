@@ -12,6 +12,7 @@ Expected errors:
 41                 POST /petclinic/api/pets: HTTPError('404 Client Error:  for url: /petclinic/api/pets')              
 44                 POST /petclinic/api/visits: HTTPError('404 Client Error:  for url: /petclinic/api/visits')          
 ------------------|-------------------------------------------------------------------------------------------------------------------------------------------
+NOTES: no numbers for names!
 
 #######################################################################################
 
@@ -69,6 +70,17 @@ class PetClinicUser(HttpUser):
         file.close()
         return value
 
+    def getUniqueString(self,value):
+        letters = "abcdefghijklmnopqrstuvwxyz"  
+        base26=""
+        base = len(letters)
+        while value >= 0:
+            value, resto = divmod(value, base)
+            base26 = letters[resto] + base26
+            if value == 0:
+                break
+            value -= 1  # avoid some problems
+        return base26
 
 
     # NOTE: PetTypes CRUD tasks #######################################################
@@ -94,6 +106,7 @@ class PetClinicUser(HttpUser):
     def add_pettype(self):
 
         pettype = self.getCounter(self.ADD_PETTYPE_PATH)
+
         new_pettype_data= {
             "name":f"new_pettype{pettype}"
         }
@@ -124,9 +137,10 @@ class PetClinicUser(HttpUser):
     def add_owner(self):
 
         owner_counter = self.getCounter(self.ADD_OWNER_PATH)
+        owner_unique = self.getUniqueString(owner_counter)
         new_owner_data = {
             "firstName": "newName",
-            "lastName": f"newLastname{owner_counter}",
+            "lastName": f"newLastname{owner_unique}",
             "address": "newAddress",
             "city": "newCity",
             "telephone": "1"
@@ -222,6 +236,7 @@ class PetClinicUser(HttpUser):
     # #########################################################################
 
 
+    """
     # WARNING: this method returns 404 in spring
     @task
     def add_pet(self):
@@ -234,6 +249,7 @@ class PetClinicUser(HttpUser):
             }
         }
         self.client.post(f"{self.base_path}/pets", json=pet_data)
+    """
 
     @task
     def update_pet(self):
@@ -300,6 +316,7 @@ class PetClinicUser(HttpUser):
     def get_visits(self):
         self.client.get(f"{self.base_path}/visits")
     
+    """
     # WARNING: This in Spring is wrong
     @task
     def add_visit(self):
@@ -308,6 +325,7 @@ class PetClinicUser(HttpUser):
             "description": "newDescription"
         }
         self.client.post(f"{self.base_path}/visits", json=new_visit_data)
+    """
 
 
     @task
