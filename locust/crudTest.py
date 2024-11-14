@@ -1,4 +1,4 @@
-import random
+import random, os
 from locust import HttpUser, task, between
 
 """
@@ -44,6 +44,32 @@ Different behavior (mine should be correct):
 class PetClinicUser(HttpUser):
     wait_time = between(1, 3)
     base_path = "/petclinic/api"
+    ADD_OWNER_PATH= "./addOwner_counter.txt"
+    ADD_PETTYPE_PATH= "./addPettype_counter.txt"
+    ADD_SPECIALTY_PATH="./addSpecialty_counter.txt"
+    UPDATE_OWNER_PATH="./updateOwner_counter.txt"
+    UPDATE_PETTYPE_PATH="./updatePettype_counter.txt"
+    UPDATE_SPECIALTY_PATH="./updateSpecialty_counter.txt"
+
+
+
+
+
+
+
+    def getCounter(self,file_path):
+        file = open(file_path,"r+")
+
+        rows= file.readlines()
+        value = int(rows[0].strip())
+        rows[0]= str(value+1)
+
+        file.seek(0)
+        file.writelines(rows);
+        file.close()
+        return value
+
+
 
     # NOTE: PetTypes CRUD tasks #######################################################
     # #########################################################################
@@ -65,9 +91,11 @@ class PetClinicUser(HttpUser):
         self.client.put(f"{self.base_path}/pettypes/1", json=updated_pettypes_data)
 
     @task
-    def addPettype(self):
+    def add_pettype(self):
+
+        pettype = self.getCounter(self.ADD_PETTYPE_PATH)
         new_pettype_data= {
-            "name":"new_pettype"
+            "name":f"new_pettype{pettype}"
         }
         self.client.post(f"{self.base_path}/pettypes",json=new_pettype_data)
 
@@ -85,7 +113,6 @@ class PetClinicUser(HttpUser):
     def get_owner_pet_by_id(self):
         self.client.get(f"{self.base_path}/owners/1/pets/1")
 
-
     @task
     def get_that_owner_pets(self):
         owner_lastName = "Franklin"
@@ -95,13 +122,18 @@ class PetClinicUser(HttpUser):
     # WARNING: owner lastName should be unique 
     @task
     def add_owner(self):
+
+        owner_counter = self.getCounter(self.ADD_OWNER_PATH)
         new_owner_data = {
             "firstName": "newName",
-            "lastName": "newLastname",
+            "lastName": f"newLastname{owner_counter}",
             "address": "newAddress",
             "city": "newCity",
             "telephone": "1"
         }
+
+
+
         self.client.post(f"{self.base_path}/owners", json=new_owner_data)
 
     @task
@@ -115,6 +147,7 @@ class PetClinicUser(HttpUser):
             }
             self.client.put(f"{self.base_path}/owners/2", json=updated_owner_data)
 
+    """
     @task
     def update_owner_pet(self):
         updated_pet_data = {
@@ -126,6 +159,7 @@ class PetClinicUser(HttpUser):
             }
         }
         self.client.put(f"{self.base_path}/owners/1/pets/1", json=updated_pet_data)
+    """
 
 
     @task
@@ -238,8 +272,10 @@ class PetClinicUser(HttpUser):
 
     @task
     def add_specialty(self):
+
+        specialty= self.getCounter(self.ADD_SPECIALTY_PATH)
         new_specialty_data = {
-            "name": "new_specialty_name"
+            "name": f"new_specialty_name{specialty}"
         }
         self.client.post(f"{self.base_path}/specialties", json=new_specialty_data)
 
