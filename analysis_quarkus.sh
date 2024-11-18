@@ -66,12 +66,12 @@ for i in $(seq 1 3); do
 
   # Run the locust command with the date in the CSV filename
   cd ./locust/
-  echo path . $(pwd)
   locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}"
   cd ..
 
   # When finished, terminate the Maven process
-  kill $MAVEN_PID
+  kill $MAVEN_PID || true
+  wait $MAVEN_PID || true
 
   echo "Iteration ${i} Finished"
   sleep 10
