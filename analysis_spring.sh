@@ -51,8 +51,8 @@ echo "Running the script with: minutes=${time}, users=${users}, db=${db}"
 
 # Run the app and the test
 for i in $(seq 1 3); do
-  echo "Iteration number: ${i}"
-  cd ./spring-petclinic-rest-master/ && ./mvnw spring-boot:run -Dspring-boot.run.arguments="--db=${db}" &
+  echo " ---------------------- Iteration number: ${i} ---------------------- "
+  cd ./spring-petclinic-rest-master/ && ./mvnw spring-boot:start -Dspring-boot.run.arguments="--db=${db}" &
   MAVEN_PID=$!
 
   sleep 20 # Give enough time for the app to set up
@@ -66,13 +66,33 @@ for i in $(seq 1 3); do
 
   # Run the locust command with the date in the CSV filename
   cd ./locust/
-  echo path . $(pwd)
+  echo path: . $(pwd)
   locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}"
+
+  cd ../spring-petclinic-rest-master
+
+  ./mvnw spring-boot:stop
+
   cd ..
+  echo path: . $(pwd)
 
-  # When finished, terminate the Maven process
-  kill $MAVEN_PID
+  #
+  #  # kill the process via the port recognition
+  #  PORT=9966
+  #
+  #  PID=$(lsof -t -i:$PORT)
+  #
+  #  if [ -n "$PID" ]; then
+  #    echo "La porta $PORT è in uso dal processo con PID: $PID"
+  #    echo "Uccido il processo..."
+  #    kill $PID
+  #    # kill -9 $PID aggressive closure
+  #    echo "Processo terminato."
+  #  else
+  #    echo "La porta $PORT non è in uso."
+  #  fi
+  #
 
-  echo "Iteration ${i} Finished"
-  sleep 10
+  echo " ---------------------- Iteration ${i} Finished ---------------------- "
+  sleep 5
 done
