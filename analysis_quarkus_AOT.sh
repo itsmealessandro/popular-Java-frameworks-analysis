@@ -1,11 +1,10 @@
 #!/bin/bash
-set -e # Stop the script immediately if any command fails
 
 #PATH_TO_LOCUST="locust"
 #PATH_TO_LOCUST_FILE="${PATH_TO_LOCUST}/simulate_sessions.py"
 #PATH_TO_RESULTS="${PATH_TO_LOCUST}/csv_results"
 
-PATH_TO_RESULTS="csv_results/S_JIT"
+PATH_TO_RESULTS="csv_results/Q_AOT"
 PATH_TO_LOCUST_FILE="simulate_sessions.py"
 HOST="http://localhost:9966"
 
@@ -51,11 +50,11 @@ echo "Running the script with: minutes=${time}, users=${users}, db=${db}"
 
 # Run the app and the test
 for i in $(seq 1 3); do
-  echo " ---------------------- Iteration number: ${i} ---------------------- "
-  cd ./spring-petclinic-rest-master/ && ./mvnw spring-boot:start -Dspring-boot.run.arguments="--db=${db}" &
+  echo "Iteration number: ${i}"
+  cd ./quarkus-petclinic/target/ && ./rest-json-quickstart-1.0.0-SNAPSHOT-runner -Ddb=${db} &
   MAVEN_PID=$!
 
-  sleep 20 # Give enough time for the app to set up
+  sleep 5 # Give enough time for the app to set up
 
   # Get the current date and time in a format suitable for filenames
   current_time=$(date '+%Y_%m_%d_%Hh%Mm%Ss')
@@ -66,33 +65,23 @@ for i in $(seq 1 3); do
 
   # Run the locust command with the date in the CSV filename
   cd ./locust/
-  echo path: . $(pwd)
-  locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}"
-
-  cd ../spring-petclinic-rest-master
-
-  ./mvnw spring-boot:stop
-
+  locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/u${users}_db_t${time}${db}${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}"
   cd ..
-  echo path: . $(pwd)
 
-  #
-  #  # kill the process via the port recognition
-  #  PORT=9966
-  #
-  #  PID=$(lsof -t -i:$PORT)
-  #
-  #  if [ -n "$PID" ]; then
-  #    echo "La porta $PORT è in uso dal processo con PID: $PID"
-  #    echo "Uccido il processo..."
-  #    kill $PID
-  #    # kill -9 $PID aggressive closure
-  #    echo "Processo terminato."
-  #  else
-  #    echo "La porta $PORT non è in uso."
-  #  fi
-  #
+  PORT=9966
 
-  echo " ---------------------- Iteration ${i} Finished ---------------------- "
-  sleep 5
+  # Trova il PID del processo che usa la porta
+  PID=$(lsof -t -i :"$PORT")
+
+  if [ -z "$PID" ]; then
+    echo "Nessun processo trovato sulla porta $PORT."
+    exit 0
+  fi
+
+  # Termina il processo
+  echo "Trovato processo sulla porta $PORT con PID: $PID. Terminazione in corso..."
+  kill -9 "$PID"
+
+  echo "Iteration ${i} Finished"
+  sleep 10
 done

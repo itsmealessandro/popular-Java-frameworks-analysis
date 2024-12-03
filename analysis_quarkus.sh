@@ -1,11 +1,10 @@
 #!/bin/bash
-set -e # Stop the script immediately if any command fails
 
 #PATH_TO_LOCUST="locust"
 #PATH_TO_LOCUST_FILE="${PATH_TO_LOCUST}/simulate_sessions.py"
 #PATH_TO_RESULTS="${PATH_TO_LOCUST}/csv_results"
 
-PATH_TO_RESULTS="csv_results"
+PATH_TO_RESULTS="csv_results/Q_JIT"
 PATH_TO_LOCUST_FILE="simulate_sessions.py"
 HOST="http://localhost:9966"
 
@@ -52,7 +51,7 @@ echo "Running the script with: minutes=${time}, users=${users}, db=${db}"
 # Run the app and the test
 for i in $(seq 1 3); do
   echo "Iteration number: ${i}"
-  cd ./spring-petclinic-rest-master/ && ./mvnw spring-boot:run -Dspring-boot.run.arguments="--db=${db}" &
+  cd ./quarkus-petclinic/ && ./mvnw clean compile package quarkus:run -Ddb=${db} &
   MAVEN_PID=$!
 
   sleep 20 # Give enough time for the app to set up
@@ -69,9 +68,19 @@ for i in $(seq 1 3); do
   locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}"
   cd ..
 
-  # When finished, terminate the Maven process
-  kill $MAVEN_PID || true
-  wait $MAVEN_PID || true
+  PORT=9966
+
+  # Trova il PID del processo che usa la porta
+  PID=$(lsof -t -i :"$PORT")
+
+  if [ -z "$PID" ]; then
+    echo "Nessun processo trovato sulla porta $PORT."
+    exit 0
+  fi
+
+  # Termina il processo
+  echo "Trovato processo sulla porta $PORT con PID: $PID. Terminazione in corso..."
+  kill -9 "$PID"
 
   echo "Iteration ${i} Finished"
   sleep 10
