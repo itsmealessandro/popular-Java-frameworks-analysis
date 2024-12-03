@@ -1,6 +1,5 @@
 package org.acme.rest;
 
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
 
 import org.json.JSONObject;
@@ -193,6 +192,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws IllegalArgumentException
    */
+  @Transactional
   public void addOwner(Owner owner) throws SQLException, IllegalArgumentException {
 
     if (getOwnerByLastName(owner.getLastName()) != null) {
@@ -298,6 +298,7 @@ public class DatabaseService {
    * @throws NotFoundException
    * @throws IllegalArgumentException
    */
+  @Transactional
   public Owner updateOwner(long ownerId, Owner owner) throws SQLException, NotFoundException, IllegalArgumentException {
 
     String query = "UPDATE owners SET first_name = ?, last_name = ?, address = ?, city = ?, telephone = ? WHERE id = ?";
@@ -341,6 +342,7 @@ public class DatabaseService {
    * @throws NotFoundException
    * @throws SQLException
    */
+  @Transactional
   public Owner deleteOwner(int ownerId) throws NotFoundException, SQLException, ObjectReferenceException {
 
     Owner owner = getOwner(ownerId);
@@ -366,6 +368,7 @@ public class DatabaseService {
     }
   }
 
+  @Transactional
   public void addPetToOwner(long ownerId, Pet pet) throws SQLException, NotFoundException {
     String query = "UPDATE pets SET owner_id=? WHERE id=?";
     try (Connection conn = dataSource.getConnection();
@@ -465,6 +468,7 @@ public class DatabaseService {
     }
   }
 
+  @Transactional
   public List<Pet> listPets() throws SQLException {
     String query = "SELECT id FROM pets";
     List<Pet> pets = new ArrayList<>();
@@ -487,6 +491,7 @@ public class DatabaseService {
    *            add a new Pet if the Type exists
    * @exception BadRequestException if type do not exists or its id does not match
    */
+  @Transactional
   public Pet addPet(Pet pet) throws SQLException {
 
     String query = "INSERT INTO pets (name, birth_date,type_id) VALUES (?,?,?)";
@@ -552,6 +557,7 @@ public class DatabaseService {
    * @throws NotFoundException
    * @throws SQLException
    */
+  @Transactional
   public Pet deletePet(long petId) throws NotFoundException, SQLException {
 
     Pet pet = getPet(petId);
@@ -610,6 +616,7 @@ public class DatabaseService {
    * @return Type if exists with that name
    * @throws SQLException
    */
+  @Transactional
   private Type getTypeByName(String name) throws SQLException {
 
     String query = "SELECT id FROM types WHERE name = ? ";
@@ -634,6 +641,7 @@ public class DatabaseService {
    * @return true if is unique, false otherways
    * @throws SQLException
    */
+  @Transactional
   private boolean pettypesIsUnique(String name) throws SQLException {
 
     String query = "SELECT COUNT(*) AS instances FROM types WHERE name = ?";
@@ -659,6 +667,7 @@ public class DatabaseService {
    * 
    * @param typeName
    */
+  @Transactional
   public void addPetType(Type pettype) throws SQLException, NamingException {
 
     if (!pettypesIsUnique(pettype.getName())) {
@@ -695,6 +704,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws NamingException
    */
+  @Transactional
   public Type updatePetType(Type type) throws NotFoundException, SQLException, NamingException {
     Type storedType = getType(type.getId());
     if (storedType == null) {
@@ -722,6 +732,7 @@ public class DatabaseService {
    * @return a Set of pettypes
    * @throws SQLException
    */
+  @Transactional
   public Set<Type> listPetTypes() throws SQLException {
     String query = "SELECT id FROM types";
     Set<Type> types = new HashSet<>();
@@ -750,6 +761,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws ObjectReferenceException
    */
+  @Transactional
   public Type deletePetType(long pettypeId) throws NotFoundException, SQLException, ObjectReferenceException {
 
     Type type = getType(pettypeId);
@@ -782,6 +794,7 @@ public class DatabaseService {
    * @return a Specialty given an id
    * @throws SQLException
    */
+  @Transactional
   public Specialty getSpecialty(long specialtyId) throws SQLException {
 
     String query = "SELECT * FROM specialties WHERE id = ?";
@@ -810,6 +823,7 @@ public class DatabaseService {
    * @return specialty with that name if exists, otherways null
    * @throws SQLException
    */
+  @Transactional
   public Specialty getSpecialtyByName(String name) throws SQLException {
     String query = "SELECT id FROM specialties WHERE name = ?";
     try (Connection conn = dataSource.getConnection();
@@ -835,6 +849,7 @@ public class DatabaseService {
    * 
    * @param specialtyName
    */
+  @Transactional
   public void addSpecialty(String specialtyName) {
     String query = "INSERT INTO specialties (name) VALUES (?)";
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -849,6 +864,7 @@ public class DatabaseService {
    * @return a set of Specialtyes
    * @throws SQLException
    */
+  @Transactional
   public Set<Specialty> listSpecialties() throws SQLException {
     String query = "SELECT id FROM specialties";
     Set<Specialty> specialties = new HashSet<>();
@@ -872,6 +888,7 @@ public class DatabaseService {
    * @return true if is unique, false otherways
    * @throws SQLException
    */
+  @Transactional
   private boolean specialtyIsUnique(String name) throws SQLException {
 
     String query = "SELECT COUNT(*) AS instances FROM specialties WHERE name = ?";
@@ -897,6 +914,7 @@ public class DatabaseService {
    * 
    * @param typeName
    */
+  @Transactional
   public void addSpecialty(Specialty specialty) throws SQLException, NamingException {
 
     if (!specialtyIsUnique(specialty.getName())) {
@@ -933,6 +951,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws NamingException
    */
+  @Transactional
   public Specialty updateSpecialty(Specialty specialty) throws NotFoundException, SQLException, NamingException {
     Specialty storedSpecialty = getSpecialty(specialty.getId());
     if (storedSpecialty == null) {
@@ -965,6 +984,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws ObjectReferenceException
    */
+  @Transactional
   public Specialty deleteSpecialty(long specialtyId) throws NotFoundException, SQLException, ObjectReferenceException {
 
     Specialty type = getSpecialty(specialtyId);
@@ -999,6 +1019,7 @@ public class DatabaseService {
    * @return the visit or null if not exists
    * @throws SQLException
    */
+  @Transactional
   public Visit getVisit(long id) throws SQLException {
     String query = "SELECT * FROM visits WHERE id=?";
     try (Connection connection = dataSource.getConnection();
@@ -1027,6 +1048,7 @@ public class DatabaseService {
    * @return a Set of visits
    * @throws SQLException
    */
+  @Transactional
   public Set<Visit> listVisits() throws SQLException {
     String query = "SELECT id FROM visits";
     Set<Visit> visits = new HashSet<>();
@@ -1052,6 +1074,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws NamingException
    */
+  @Transactional
   public void addVisit(Visit visit) throws SQLException, NamingException {
 
     String query = "INSERT INTO visits (visit_date,description) VALUES (?,?)";
@@ -1083,6 +1106,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws NamingException
    */
+  @Transactional
   public void addVisitToPet(Visit visit, long ownerId, long petId)
       throws SQLException, NamingException, NotFoundException {
 
@@ -1135,6 +1159,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws NamingException
    */
+  @Transactional
   public Visit updateVisit(Visit visit) throws NotFoundException, SQLException, NamingException {
     Visit storedVisit = getVisit(visit.getId());
     if (storedVisit == null) {
@@ -1174,6 +1199,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws ObjectReferenceException
    */
+  @Transactional
   public Visit deleteVisit(long visitId) throws NotFoundException, SQLException, ObjectReferenceException {
 
     Visit visit = getVisit(visitId);
@@ -1204,6 +1230,7 @@ public class DatabaseService {
    * @return vet with that id if exits or null if it doesn't
    * @throws SQLException
    */
+  @Transactional
   public Vet getVet(long vetId) throws SQLException {
     String query_vet = "SELECT * FROM vets WHERE id = ?";
     String query_spec = "SELECT specialty_id FROM vet_specialties WHERE vet_id = ? ";
@@ -1242,6 +1269,7 @@ public class DatabaseService {
    * @return a set of vets
    * @throws SQLException
    */
+  @Transactional
   public Set<Vet> listVets() throws SQLException {
     String query = "SELECT id FROM vets";
     Set<Vet> vets = new HashSet<>();
@@ -1264,6 +1292,7 @@ public class DatabaseService {
    *            add a new vet if the Type exists
    * @exception BadRequestException if type do not exists or its id does not match
    */
+  @Transactional
   public Vet addVet(Vet vet) throws SQLException, NotFoundException {
     // WARNING: A Vet can have more than 1 specialty
     // NOTE: Pseudocode to better understand this complex method:
@@ -1337,6 +1366,7 @@ public class DatabaseService {
    * @param vet_key
    * @param specialtieId_set
    */
+  @Transactional
   private void vet_specialty_bind(long vet_key, Set<Long> specialtieId_set) throws SQLException {
 
     String query_bind = "INSERT INTO vet_specialties (vet_id, specialty_id) VALUES (?,?)";
@@ -1364,6 +1394,7 @@ public class DatabaseService {
    * @throws SQLException
    * @throws NotFoundException
    */
+  @Transactional
   public Vet updateVet(Vet vet) throws SQLException, NotFoundException {
 
     if (getVet(vet.getId()) == null) {
@@ -1420,6 +1451,7 @@ public class DatabaseService {
    * @param vet_id
    * @throws SQLException
    */
+  @Transactional
   private void deleteVetSpecialties(Set<Specialty> specialties, long vet_id) throws SQLException {
 
     String query_delete = "DELETE FROM vet_specialties WHERE vet_id = ?";
@@ -1435,6 +1467,7 @@ public class DatabaseService {
 
   }
 
+  @Transactional
   public Vet deleteVet(long vetId) throws SQLException, NotFoundException {
     Vet vet = getVet(vetId);
 
