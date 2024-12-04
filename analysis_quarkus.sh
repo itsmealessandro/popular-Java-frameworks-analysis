@@ -65,7 +65,7 @@ for i in $(seq 1 3); do
 
   # Run the locust command with the date in the CSV filename
   cd ./locust/
-  locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}"
+  locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/u${users}_db_t${time}${db}${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}"
   cd ..
 
   PORT=9966

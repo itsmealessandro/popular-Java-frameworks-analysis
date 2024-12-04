@@ -1,0 +1,13 @@
+Method,Name,Error,Occurrences
+POST,/petclinic/api/owners,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/owners'),97
+PUT,/petclinic/api/vets/2,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/vets/2'),65
+PUT,/petclinic/api/owners/2,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/owners/2'),62
+POST,/petclinic/api/owners/1/pets,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/owners/1/pets'),266
+POST,/petclinic/api/pettypes,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/pettypes'),70
+PUT,/petclinic/api/specialties/2,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/specialties/2'),67
+POST,/petclinic/api/specialties,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/specialties'),57
+PUT,/petclinic/api/pets/2,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/pets/2'),79
+PUT,/petclinic/api/visits/2,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/visits/2'),65
+PUT,/petclinic/api/pettypes/2,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/pettypes/2'),80
+POST,/petclinic/api/owners/1/pets/1/visits,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/owners/1/pets/1/visits'),74
+POST,/petclinic/api/vets,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/vets'),68

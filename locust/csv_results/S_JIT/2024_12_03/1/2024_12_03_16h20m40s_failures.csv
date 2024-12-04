@@ -1,0 +1,13 @@
+Method,Name,Error,Occurrences
+POST,/petclinic/api/pettypes,"ConnectionRefusedError(111, 'Connection refused')",2084
+POST,/petclinic/api/owners/1/pets/1/visits,"ConnectionRefusedError(111, 'Connection refused')",2129
+POST,/petclinic/api/specialties,"ConnectionRefusedError(111, 'Connection refused')",2061
+PUT,/petclinic/api/vets/2,"ConnectionRefusedError(111, 'Connection refused')",2042
+PUT,/petclinic/api/pettypes/2,"ConnectionRefusedError(111, 'Connection refused')",2084
+PUT,/petclinic/api/specialties/2,"ConnectionRefusedError(111, 'Connection refused')",2061
+PUT,/petclinic/api/owners/2,"ConnectionRefusedError(111, 'Connection refused')",2156
+POST,/petclinic/api/vets,"ConnectionRefusedError(111, 'Connection refused')",2042
+POST,/petclinic/api/owners/1/pets,"ConnectionRefusedError(111, 'Connection refused')",4239
+PUT,/petclinic/api/pets/2,"ConnectionRefusedError(111, 'Connection refused')",2083
+POST,/petclinic/api/owners,"ConnectionRefusedError(111, 'Connection refused')",2156
+PUT,/petclinic/api/visits/2,"ConnectionRefusedError(111, 'Connection refused')",2129

@@ -616,7 +616,6 @@ public class DatabaseService {
    * @return Type if exists with that name
    * @throws SQLException
    */
-  @Transactional
   private Type getTypeByName(String name) throws SQLException {
 
     String query = "SELECT id FROM types WHERE name = ? ";
@@ -641,7 +640,6 @@ public class DatabaseService {
    * @return true if is unique, false otherways
    * @throws SQLException
    */
-  @Transactional
   private boolean pettypesIsUnique(String name) throws SQLException {
 
     String query = "SELECT COUNT(*) AS instances FROM types WHERE name = ?";
@@ -888,7 +886,6 @@ public class DatabaseService {
    * @return true if is unique, false otherways
    * @throws SQLException
    */
-  @Transactional
   private boolean specialtyIsUnique(String name) throws SQLException {
 
     String query = "SELECT COUNT(*) AS instances FROM specialties WHERE name = ?";
@@ -1366,7 +1363,6 @@ public class DatabaseService {
    * @param vet_key
    * @param specialtieId_set
    */
-  @Transactional
   private void vet_specialty_bind(long vet_key, Set<Long> specialtieId_set) throws SQLException {
 
     String query_bind = "INSERT INTO vet_specialties (vet_id, specialty_id) VALUES (?,?)";
@@ -1451,7 +1447,6 @@ public class DatabaseService {
    * @param vet_id
    * @throws SQLException
    */
-  @Transactional
   private void deleteVetSpecialties(Set<Specialty> specialties, long vet_id) throws SQLException {
 
     String query_delete = "DELETE FROM vet_specialties WHERE vet_id = ?";

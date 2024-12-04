@@ -64,14 +64,27 @@ for i in $(seq 1 3); do
   # Ensure the results directory exists
   mkdir -p "${PATH_TO_RESULTS}/${current_date}/${i}"
 
+  # Ensure the results directory exists (perf)
+  mkdir -p "${PATH_TO_RESULTS}/perf/${current_date}/${i}"
+  # perf analysis
+  sudo perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o "${PATH_TO_RESULTS}/perf/${current_date}/${i}/perf_data_${current_time}.txt" &
+
+  PERF_PID=$! # Save the perf process PID
+
   # Run the locust command with the date in the CSV filename
   cd ./locust/
-  echo path: . $(pwd)
-  locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}"
+  echo path: . $(pwd) . This is the path
+
+  LOCUST_PATH=$(which locust)
+
+  $LOCUST_PATH --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}"
 
   cd ../spring-petclinic-rest-master
 
   ./mvnw spring-boot:stop
+
+  kill $PERF_PID
+  wait $PERF_PID # Ensure that perf has terminated
 
   cd ..
   echo path: . $(pwd)
