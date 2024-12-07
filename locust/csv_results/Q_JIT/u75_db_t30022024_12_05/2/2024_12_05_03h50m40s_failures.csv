@@ -1,0 +1,7 @@
+Method,Name,Error,Occurrences
+POST,/petclinic/api/owners,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/owners'),1010
+POST,/petclinic/api/owners/1/pets,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/owners/1/pets'),1013
+POST,/petclinic/api/pettypes,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/pettypes'),6
+POST,/petclinic/api/specialties,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/specialties'),3
+POST,/petclinic/api/owners/1/pets/1/visits,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/owners/1/pets/1/visits'),4
+POST,/petclinic/api/vets,HTTPError('500 Server Error: Internal Server Error for url: /petclinic/api/vets'),6

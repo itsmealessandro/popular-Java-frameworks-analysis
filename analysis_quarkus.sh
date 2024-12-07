@@ -8,9 +8,6 @@ PATH_TO_RESULTS="csv_results/Q_JIT"
 PATH_TO_LOCUST_FILE="simulate_sessions.py"
 HOST="http://localhost:9966"
 
-# Create a process group for the script
-trap "kill 0" SIGINT SIGTERM EXIT
-
 # NOTE: Input is expected in minutes, it will be converted into seconds
 time=""
 users=""
@@ -46,12 +43,16 @@ if [[ -z "$time" || -z "$users" || -z "$db" ]]; then
 fi
 
 # Explain the script arguments
+echo "--------------------------------------------------------------------"
+echo "--------------------------------------------------------------------"
 echo "Running the script with: minutes=${time}, users=${users}, db=${db}"
+echo "--------------------------------------------------------------------"
+echo "--------------------------------------------------------------------"
 
 # Run the app and the test
 for i in $(seq 1 3); do
   echo "Iteration number: ${i}"
-  cd ./quarkus-petclinic/ && ./mvnw clean compile package quarkus:run -Ddb=${db} &
+  cd ./quarkus-petclinic/ && ./mvnw clean compile package quarkus:run -Ddb=${db} >/dev/null 2>&1 &
   MAVEN_PID=$!
 
   sleep 20 # Give enough time for the app to set up
@@ -64,9 +65,14 @@ for i in $(seq 1 3); do
   mkdir -p "${PATH_TO_RESULTS}/${current_date}/${i}"
 
   # Run the locust command with the date in the CSV filename
+  echo "--------------------------------------------------------------------"
+  echo "Running locust load test ..."
   cd ./locust/
-  locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/u${users}_db_t${time}${db}${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}"
+  locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/u${users}_db_t${time}${db}${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}" >/dev/null 2>&1
   cd ..
+
+  echo "--------------------------------------------------------------------"
+  echo "Load Test Finished"
 
   PORT=9966
 

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "#Quarkus analysis starts"
 #PATH_TO_LOCUST="locust"
 #PATH_TO_LOCUST_FILE="${PATH_TO_LOCUST}/simulate_sessions.py"
 #PATH_TO_RESULTS="${PATH_TO_LOCUST}/csv_results"
@@ -7,9 +8,6 @@
 PATH_TO_RESULTS="csv_results/Q_AOT"
 PATH_TO_LOCUST_FILE="simulate_sessions.py"
 HOST="http://localhost:9966"
-
-# Create a process group for the script
-trap "kill 0" SIGINT SIGTERM EXIT
 
 # NOTE: Input is expected in minutes, it will be converted into seconds
 time=""
@@ -46,11 +44,19 @@ if [[ -z "$time" || -z "$users" || -z "$db" ]]; then
 fi
 
 # Explain the script arguments
+echo "##################################################################"
+echo "##################################################################"
+echo "##################################################################"
 echo "Running the script with: minutes=${time}, users=${users}, db=${db}"
+echo "##################################################################"
+echo "##################################################################"
+echo "##################################################################"
 
 # Run the app and the test
 for i in $(seq 1 3); do
+  echo "##################################################################"
   echo "Iteration number: ${i}"
+  echo "##################################################################"
   cd ./quarkus-petclinic/target/ && ./rest-json-quickstart-1.0.0-SNAPSHOT-runner -Ddb=${db} &
   MAVEN_PID=$!
 

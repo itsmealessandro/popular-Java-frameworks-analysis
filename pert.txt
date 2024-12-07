@@ -1,0 +1,14 @@
+# started on Sat Dec  7 18:33:21 2024
+
+
+ Performance counter stats for 'system wide':
+
+     8.212.487.699      cycles                                                        (66,61%)
+     8.287.211.062      instructions              #    1,01  insn per cycle           (83,31%)
+       521.790.068      cache-references                                              (83,31%)
+        84.295.566      cache-misses              #   16,155 % of all cache refs      (83,32%)
+     1.771.323.044      branch-instructions                                           (83,61%)
+        53.374.333      branch-misses             #    3,01% of all branches          (83,15%)
+
+       0,619914952 seconds time elapsed
+
