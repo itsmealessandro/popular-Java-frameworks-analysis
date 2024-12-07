@@ -66,37 +66,33 @@ for i in $(seq 1 3); do
   echo "--------------------------------------------------------------------"
   echo " sleeping for 20 sec "
   echo "--------------------------------------------------------------------"
-  #sleep 20 # Give enough time for the app to set up
+  sleep 20 # Give enough time for the app to set up
 
   # Get the current date and time in a format suitable for filenames
   current_time=$(date '+%Y_%m_%d_%Hh%Mm%Ss')
   current_date=$(date '+%Y_%m_%d')
 
   # Define the directory where the results will be saved
-  iteration_dir="${PATH_TO_RESULTS}/u${users}_db${db}_t${time}${current_date}/${i}"
+  iteration_dir="locust/${PATH_TO_RESULTS}/u${users}_db${db}_t${time}${current_date}/${i}"
 
   echo "Creating directory: ${iteration_dir}"
   mkdir -p "${iteration_dir}"
 
-  # Ensure the results directory exists
-  mkdir -p "${PATH_TO_RESULTS}/${current_date}/${i}"
-
-  echo "ensure dir perf"
-  # Ensure the results directory exists (perf)
-  mkdir -p "${PATH_TO_RESULTS}/perf/${current_date}/${i}"
+  echo "running: perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o ${iteration_dir}/perf.txt"
   # perf analysis
-  perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o locust/${iteration_dir}/perf.txt &
+  perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o ${iteration_dir}/perf.txt &
 
-  if [ -f "${PATH_TO_RESULTS}/perf/${current_date}/${i}/perf_data_${current_time}.txt" ]; then
+  sleep 1
+  if [ -f "${iteration_dir}/perf.txt" ]; then
     echo "Perf data file created."
   else
     echo "Perf data file not created."
   fi
+
   PERF_PID=$! # Save the perf process PID
 
   # Run the locust command with the date in the CSV filename
   cd ./locust/
-  echo path: . $(pwd) . This is the path
 
   LOCUST_PATH=$(which locust)
 
@@ -110,7 +106,9 @@ for i in $(seq 1 3); do
 
   ./mvnw spring-boot:stop
 
-  kill $PERF_PID
+  sleep 1
+
+  kill -INT $PERF_PID
   wait $PERF_PID # Ensure that perf has terminated
 
   cd ..
