@@ -115,7 +115,7 @@ public class Endpoint {
     try {
       databaseService.updateOwner(ownerId, owner);
 
-      return Response.ok(owner).build();
+      return Response.status(Response.Status.NO_CONTENT).build();
     } catch (SQLException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     } catch (NotFoundException e) {
@@ -260,7 +260,7 @@ public class Endpoint {
       pet.setId(petId);
 
       databaseService.updatePet(petId, pet);
-      return Response.ok(pet).build();
+      return Response.status(Response.Status.NO_CONTENT).build();
 
     } catch (NotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).build();
@@ -415,7 +415,7 @@ public class Endpoint {
         return Response.status(Response.Status.BAD_REQUEST).build();
       }
       databaseService.updatePetType(petType);
-      return Response.ok(petType).build();
+      return Response.status(Response.Status.NO_CONTENT).build();
     } catch (SQLException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     } catch (NamingException e) {
@@ -541,7 +541,7 @@ public class Endpoint {
     try {
       visit.setId(visitId);
       databaseService.updateVisit(visit);
-      return Response.ok(visit).build();
+      return Response.status(Response.Status.NO_CONTENT).build();
     } catch (SQLException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     } catch (NamingException e) {
@@ -650,7 +650,7 @@ public class Endpoint {
     try {
       specialty.setId(specialtyId);
       databaseService.updateSpecialty(specialty);
-      return Response.ok(specialty).build();
+      return Response.status(Response.Status.NO_CONTENT).build();
     } catch (SQLException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     } catch (NamingException e) {
@@ -764,7 +764,7 @@ public class Endpoint {
 
       vet.setId(vetId);
       databaseService.updateVet(vet);
-      return Response.status(Response.Status.CREATED).entity(vet).build();
+      return Response.status(Response.Status.NO_CONTENT).build();
 
     } catch (BadRequestException e) {
       return Response.status(Response.Status.BAD_REQUEST).build();
