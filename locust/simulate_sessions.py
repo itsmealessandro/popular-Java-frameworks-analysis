@@ -58,6 +58,7 @@ class PetClinicUser(HttpUser):
         adds a new pet to that owner,
         updates the owner data,
         """
+        self.client.get(f"{self.base_path}/owners/1")  # GET request at the beginning of the task
 
         owner_counter = self.getUpdateCounter(self.ADD_OWNER_PATH)
         # adds a new owner
@@ -104,7 +105,7 @@ class PetClinicUser(HttpUser):
         adds a new pet to an existing owner
         update pet data
         """
-
+        self.client.get(f"{self.base_path}/pets/1")  # GET request at the beginning of the task
         # adds pet
 
         pet_data = {
@@ -136,6 +137,7 @@ class PetClinicUser(HttpUser):
         adds new type
         updates a type
         """
+        self.client.get(f"{self.base_path}/pettypes/1")  # GET request at the beginning of the task
 
         # adds type
         pettype = self.getUpdateCounter(self.ADD_PETTYPE_PATH)
@@ -161,8 +163,10 @@ class PetClinicUser(HttpUser):
         """
         adds new vet,
         updates vet
-
         """
+
+        self.client.get(f"{self.base_path}/vets/1")  # GET request at the beginning of the task
+
         # adds vet
         vet_data = {
             "firstName": "newFirstName",
@@ -195,6 +199,9 @@ class PetClinicUser(HttpUser):
         adds a visit
         update a visit
         """
+
+        self.client.get(f"{self.base_path}/visits/1")  # GET request at the beginning of the task
+
         #adds visit
 
         new_visit_data = {
@@ -217,6 +224,8 @@ class PetClinicUser(HttpUser):
         adds a specialty
         update a specialty
         """
+
+        self.client.get(f"{self.base_path}/specialties/1")  # GET request at the beginning of the task
 
         # adds a specialty
         specialty= self.getUpdateCounter(self.ADD_SPECIALTY_PATH)
