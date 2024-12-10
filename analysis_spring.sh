@@ -56,6 +56,33 @@ echo "--------------------------------------------------------------------"
 for i in $(seq 1 3); do
   echo " ---------------------- Iteration number: ${i} ---------------------- "
 
+  # Get the current date and time in a format suitable for filenames
+  current_time=$(date '+%Y_%m_%d_%Hh%Mm%Ss')
+  current_date=$(date '+%Y_%m_%d')
+
+  # Define the directory where the results will be saved
+  iteration_dir="locust/${PATH_TO_RESULTS}/u${users}_db${db}_t${time}_${current_date}/${i}"
+
+  echo "Creating directory: ${iteration_dir}"
+  mkdir -p "${iteration_dir}"
+
+  # ---------------------------------- PERF BOOT ----------------------------------
+
+  echo "Running perf boot analysis"
+  # perf analysis
+  perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o ${iteration_dir}/boot_performance.txt &
+
+  sleep 1
+  if [ -f "${iteration_dir}/boot_performance.txt" ]; then
+    echo "Perf data file created."
+  else
+    echo "Perf data file not created."
+  fi
+
+  PERF_PID=$! # Save the perf process PID
+
+  # ---------------------------------- APP BOOT ----------------------------------
+
   echo "--------------------------------------------------------------------"
   echo " Starting The application... "
   echo "--------------------------------------------------------------------"
@@ -68,28 +95,23 @@ for i in $(seq 1 3); do
   echo "--------------------------------------------------------------------"
   sleep 20 # Give enough time for the app to set up
 
-  # Get the current date and time in a format suitable for filenames
-  current_time=$(date '+%Y_%m_%d_%Hh%Mm%Ss')
-  current_date=$(date '+%Y_%m_%d')
+  echo "Stopping perf on build, saving boot data performance"
+  kill -INT $PERF_PID
+  wait $PERF_PID # Ensure that perf has terminated
 
-  # Define the directory where the results will be saved
-  iteration_dir="locust/${PATH_TO_RESULTS}/u${users}_db${db}_t${time}${current_date}/${i}"
+  # ---------------------------------- PERF LOAD TEST ----------------------------------
+  echo "Running perf  load test analysis"
+  perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o ${iteration_dir}/load_test_performance.txt &
 
-  echo "Creating directory: ${iteration_dir}"
-  mkdir -p "${iteration_dir}"
-
-  echo "running: perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o ${iteration_dir}/perf.txt"
-  # perf analysis
-  perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o ${iteration_dir}/perf.txt &
+  PERF_PID_LOAD_TEST=$! # Save the perf process PID
 
   sleep 1
-  if [ -f "${iteration_dir}/perf.txt" ]; then
+  if [ -f "${iteration_dir}/load_test_performance.txt" ]; then
     echo "Perf data file created."
   else
     echo "Perf data file not created."
   fi
-
-  PERF_PID=$! # Save the perf process PID
+  # ----------------------------------  LOAD TEST ----------------------------------
 
   # Run the locust command with the date in the CSV filename
   cd ./locust/
@@ -98,7 +120,7 @@ for i in $(seq 1 3); do
 
   echo "--------------------------------------------------------------------"
   echo "Running locust load test ..."
-  $LOCUST_PATH --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/u${users}_db${db}_t${time}${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}" >/dev/null 2>&1
+  $LOCUST_PATH --headless -u "${users}" -t "${time}m" --host "${HOST}" --csv "${PATH_TO_RESULTS}/u${users}_db${db}_t${time}_${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}" >/dev/null 2>&1
 
   echo "--------------------------------------------------------------------"
   echo "Load Test Finished"
@@ -108,8 +130,8 @@ for i in $(seq 1 3); do
 
   sleep 1
 
-  kill -INT $PERF_PID
-  wait $PERF_PID # Ensure that perf has terminated
+  kill -INT $PERF_PID_LOAD_TEST
+  wait $PERF_PID_LOAD_TEST # Ensure that perf has terminated
 
   cd ..
 

@@ -53,30 +53,25 @@ echo "--------------------------------------------------------------------"
 for i in $(seq 1 3); do
   echo "Iteration number: ${i}"
 
-  echo "Running quarkus server with databse ${db}"
-
-  cd ./quarkus-petclinic/ && ./mvnw clean compile package quarkus:run -Ddb=${db} >/dev/null 2>&1 &
-  MAVEN_PID=$!
-
-  sleep 20 # Give enough time for the app to set up
-
   # Get the current date and time in a format suitable for filenames
   current_time=$(date '+%Y_%m_%d_%Hh%Mm%Ss')
   current_date=$(date '+%Y_%m_%d')
 
   # Define the directory where the results will be saved
-  iteration_dir="locust/${PATH_TO_RESULTS}/u${users}_db${db}_t${time}${current_date}/${i}"
+  iteration_dir="locust/${PATH_TO_RESULTS}/u${users}_db${db}_t${time}_${current_date}/${i}"
 
   echo "Creating directory: ${iteration_dir}"
   mkdir -p "${iteration_dir}"
 
   echo "Current directory: $(pwd)"
-  echo "activating perf"
+  # ---------------------------------- PERF BOOT ----------------------------------
+
+  echo "Running perf boot analysis"
   # perf analysis
-  perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o ${iteration_dir}/perf.txt &
+  perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o ${iteration_dir}/boot_performance.txt &
 
   sleep 1
-  if [ -f "${iteration_dir}/perf.txt" ]; then
+  if [ -f "${iteration_dir}/boot_performance.txt" ]; then
     echo "Perf data file created."
   else
     echo "Perf data file not created."
@@ -84,11 +79,37 @@ for i in $(seq 1 3); do
 
   PERF_PID=$! # Save the perf process PID
 
+  # ---------------------------------- APP BOOT ----------------------------------
+  echo "Running quarkus server with databse ${db}"
+
+  cd ./quarkus-petclinic/ && ./mvnw clean compile package quarkus:run -Ddb=${db} >/dev/null 2>&1 &
+  MAVEN_PID=$!
+
+  sleep 20 # Give enough time for the app to set up
+
+  echo "Stopping perf on build, saving boot data performance"
+  kill -INT $PERF_PID
+  wait $PERF_PID # Ensure that perf has terminated
+
+  # ---------------------------------- PERF LOAD TEST ----------------------------------
+  echo "Running perf  load test analysis"
+  perf stat -e cycles,instructions,cache-references,cache-misses,branch-instructions,branch-misses -a -o ${iteration_dir}/load_test_performance.txt &
+
+  PERF_PID_LOAD_TEST=$! # Save the perf process PID
+
+  sleep 1
+  if [ -f "${iteration_dir}/load_test_performance.txt" ]; then
+    echo "Perf data file created."
+  else
+    echo "Perf data file not created."
+  fi
+  # ----------------------------------  LOAD TEST ----------------------------------
+
   # Run the locust command with the date in the CSV filename
   echo "--------------------------------------------------------------------"
   echo "Running locust load test ..."
   cd ./locust/
-  locust --headless -u "${users}" -t "${time}s" --host "${HOST}" --csv "${PATH_TO_RESULTS}/u${users}_db${db}_t${time}${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}" >/dev/null 2>&1
+  locust --headless -u "${users}" -t "${time}m" --host "${HOST}" --csv "${PATH_TO_RESULTS}/u${users}_db${db}_t${time}_${current_date}/${i}/${current_time}" -f "${PATH_TO_LOCUST_FILE}" >/dev/null 2>&1
   cd ..
 
   echo "--------------------------------------------------------------------"
@@ -108,8 +129,8 @@ for i in $(seq 1 3); do
   echo "Trovato processo sulla porta $PORT con PID: $PID. Terminazione in corso..."
   kill -9 "$PID"
 
-  kill -INT $PERF_PID
-  wait $PERF_PID # Ensure that perf has terminated
+  kill -INT $PERF_PID_LOAD_TEST
+  wait $PERF_PID_LOAD_TEST # Ensure that perf has terminated
 
   echo "Iteration ${i} Finished"
   sleep 10
